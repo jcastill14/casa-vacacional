@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Casa Vacacional · Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sand: #F5EFE0;
+    --sand-dark: #EDE4CC;
+    --ocean: #1A5C6B;
+    --ocean-light: #2A7A8E;
+    --coral: #E8624A;
+    --coral-light: #F08070;
+    --palm: #2E7D52;
+    --palm-light: #3E9E68;
+    --gold: #C8963E;
+    --dark: #1C1C1E;
+    --mid: #4A4A4F;
+    --light: #8E8E93;
+    --white: #FFFFFF;
+    --card-bg: rgba(255,255,255,0.85);
+    --shadow: 0 4px 24px rgba(26,92,107,0.12);
+    --shadow-lg: 0 12px 48px rgba(26,92,107,0.18);
+    --radius: 20px;
+    --radius-sm: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--sand);
+    color: var(--dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 300px;
+    background: linear-gradient(160deg, var(--ocean) 0%, var(--ocean-light) 60%, var(--sand) 100%);
+    z-index: 0;
+  }
+
+  /* Subtle wave pattern */
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 120px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120'%3E%3Cpath d='M0,60 C200,100 400,20 600,60 C800,100 1000,20 1200,60 L1200,120 L0,120 Z' fill='%23F5EFE0' opacity='0.3'/%3E%3C/svg%3E") no-repeat bottom center;
+    background-size: cover;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  #app {
+    position: relative;
+    z-index: 1;
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding-bottom: 100px;
+  }
+
+  /* HEADER */
+  .header {
+    padding: 52px 20px 20px;
+    color: white;
+  }
+  .header-tag {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 6px;
+  }
+  .header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 30px;
+    line-height: 1.1;
+    font-style: italic;
+  }
+  .header h1 span { opacity: 0.65; font-size: 18px; display: block; font-style: normal; font-weight: 300; }
+
+  /* SUMMARY CARDS */
+  .summary-row {
+    display: flex;
+    gap: 12px;
+    padding: 0 20px;
+    margin-bottom: 24px;
+  }
+  .summary-card {
+    flex: 1;
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius-sm);
+    padding: 16px 14px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255,255,255,0.6);
+  }
+  .summary-card .label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--light);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .summary-card .amount {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--dark);
+  }
+  .summary-card .amount.income { color: var(--palm); }
+  .summary-card .amount.expense { color: var(--coral); }
+  .summary-card .amount.profit { color: var(--ocean); }
+
+  /* NAV */
+  .nav-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .nav-tab {
+    flex-shrink: 0;
+    padding: 9px 18px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    background: rgba(255,255,255,0.6);
+    color: var(--mid);
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .nav-tab.active {
+    background: var(--ocean);
+    color: white;
+    border-color: var(--ocean);
+    box-shadow: 0 4px 12px rgba(26,92,107,0.3);
+  }
+
+  /* SECTION */
+  .section { padding: 0 20px; }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    margin-bottom: 16px;
+    color: var(--dark);
+  }
+
+  /* CALENDAR */
+  .calendar-wrap {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255,255,255,0.6);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: var(--ocean);
+    color: white;
+  }
+  .cal-header h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px;
+    font-style: italic;
+  }
+  .cal-nav {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+  .cal-nav:hover { background: rgba(255,255,255,0.3); }
+  .cal-grid { padding: 12px; }
+  .cal-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 4px;
+  }
+  .cal-weekday {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--light);
+    text-transform: uppercase;
+    padding: 4px 0;
+  }
+  .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .cal-day {
+    aspect-ratio: 1;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--dark);
+    position: relative;
+    transition: all 0.15s;
+    gap: 2px;
+  }
+  .cal-day:hover { background: var(--sand-dark); }
+  .cal-day.empty { cursor: default; }
+  .cal-day.today { font-weight: 700; color: var(--ocean); }
+  .cal-day.today::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--ocean);
+  }
+  .cal-day.occupied {
+    background: linear-gradient(135deg, rgba(46,125,82,0.15), rgba(46,125,82,0.25));
+    border: 1.5px solid rgba(46,125,82,0.4);
+    color: var(--palm);
+    font-weight: 600;
+  }
+  .cal-day.occupied:hover { background: rgba(46,125,82,0.3); }
+  .cal-day .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--palm);
+    flex-shrink: 0;
+  }
+
+  /* BOOKING CARD */
+  .booking-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255,255,255,0.6);
+    margin-bottom: 12px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .booking-card:active { transform: scale(0.98); }
+  .booking-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--palm), var(--palm-light));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .booking-info { flex: 1; }
+  .booking-guest { font-weight: 600; font-size: 15px; margin-bottom: 3px; }
+  .booking-dates { font-size: 12px; color: var(--light); margin-bottom: 5px; }
+  .booking-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .booking-tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 50px;
+    background: var(--sand-dark);
+    color: var(--mid);
+  }
+  .booking-amount {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: var(--palm);
+    white-space: nowrap;
+  }
+
+  /* EXPENSE ITEMS */
+  .expense-item {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255,255,255,0.6);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .expense-item:active { transform: scale(0.98); }
+  .expense-icon {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    flex-shrink: 0;
+  }
+  .expense-icon.utilities { background: linear-gradient(135deg, #FFB347, #FFCC80); }
+  .expense-icon.cleaning { background: linear-gradient(135deg, #81D4FA, #B3E5FC); }
+  .expense-icon.pool { background: linear-gradient(135deg, #26C6DA, #80DEEA); }
+  .expense-icon.internet { background: linear-gradient(135deg, #CE93D8, #E1BEE7); }
+  .expense-icon.maintenance { background: linear-gradient(135deg, #A5D6A7, #C8E6C9); }
+  .expense-icon.other { background: linear-gradient(135deg, #FFAB91, #FFCCBC); }
+  .expense-info { flex: 1; }
+  .expense-name { font-weight: 500; font-size: 14px; margin-bottom: 2px; }
+  .expense-meta { font-size: 11px; color: var(--light); }
+  .expense-amount {
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    color: var(--coral);
+    white-space: nowrap;
+  }
+  .freq-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 50px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .freq-badge.mensual { background: #E8F5E9; color: var(--palm); }
+  .freq-badge.semanal { background: #E3F2FD; color: #1565C0; }
+  .freq-badge.diario { background: #FFF3E0; color: var(--gold); }
+  .freq-badge.unico { background: #F3E5F5; color: #7B1FA2; }
+
+  /* REPORT */
+  .report-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255,255,255,0.6);
+    margin-bottom: 16px;
+  }
+  .report-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--light);
+    margin-bottom: 16px;
+  }
+  .report-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--sand-dark);
+  }
+  .report-row:last-child { border-bottom: none; }
+  .report-row .rlabel { font-size: 14px; color: var(--mid); display: flex; align-items: center; gap: 8px; }
+  .report-row .rval { font-family: 'DM Serif Display', serif; font-size: 17px; }
+  .report-row .rval.green { color: var(--palm); }
+  .report-row .rval.red { color: var(--coral); }
+  .report-row .rval.blue { color: var(--ocean); }
+  .report-row.total { margin-top: 4px; }
+  .report-row.total .rlabel { font-weight: 600; color: var(--dark); font-size: 15px; }
+  .report-row.total .rval { font-size: 22px; }
+  .bar-wrap { margin-top: 20px; }
+  .bar-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--light); margin-bottom: 6px; }
+  .bar-track { height: 8px; background: var(--sand-dark); border-radius: 99px; overflow: hidden; margin-bottom: 10px; }
+  .bar-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
+  .bar-fill.income { background: linear-gradient(90deg, var(--palm), var(--palm-light)); }
+  .bar-fill.expense { background: linear-gradient(90deg, var(--coral), var(--coral-light)); }
+
+  /* OCCUPANCY BADGE */
+  .occ-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--ocean), var(--ocean-light));
+    border-radius: var(--radius-sm);
+    color: white;
+    margin-bottom: 16px;
+  }
+  .occ-stat { text-align: center; }
+  .occ-stat .num { font-family: 'DM Serif Display', serif; font-size: 26px; line-height: 1; }
+  .occ-stat .lbl { font-size: 10px; opacity: 0.7; letter-spacing: 1px; text-transform: uppercase; margin-top: 3px; }
+  .occ-divider { width: 1px; height: 40px; background: rgba(255,255,255,0.3); }
+
+  /* FAB */
+  .fab {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--coral), var(--coral-light));
+    color: white;
+    font-size: 26px;
+    border: none;
+    box-shadow: 0 6px 20px rgba(232,98,74,0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    z-index: 100;
+  }
+  .fab:active { transform: scale(0.93); }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(26,92,107,0.1);
+    display: flex;
+    z-index: 200;
+  }
+  .bn-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0 14px;
+    cursor: pointer;
+    gap: 3px;
+    transition: color 0.2s;
+    color: var(--light);
+    border: none;
+    background: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .bn-item.active { color: var(--ocean); }
+  .bn-icon { font-size: 22px; }
+  .bn-label { font-size: 10px; font-weight: 500; letter-spacing: 0.5px; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(28,28,30,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 500;
+    display: flex;
+    align-items: flex-end;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    width: 100%;
+    max-width: 430px;
+    margin: 0 auto;
+    background: var(--white);
+    border-radius: 24px 24px 0 0;
+    padding: 8px 20px 40px;
+    transform: translateY(30px);
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-handle {
+    width: 40px; height: 4px;
+    background: #DDD;
+    border-radius: 99px;
+    margin: 10px auto 20px;
+  }
+  .modal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: var(--dark);
+  }
+  .form-group { margin-bottom: 16px; }
+  .form-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--light);
+    margin-bottom: 6px;
+    display: block;
+  }
+  .form-input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid var(--sand-dark);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--dark);
+    background: var(--sand);
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+  }
+  .form-input:focus { border-color: var(--ocean); background: white; }
+  .form-row { display: flex; gap: 10px; }
+  .form-row .form-group { flex: 1; }
+  .type-toggle { display: flex; gap: 8px; }
+  .type-btn {
+    flex: 1;
+    padding: 11px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--sand-dark);
+    background: var(--sand);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--mid);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .type-btn.income.active { background: rgba(46,125,82,0.12); border-color: var(--palm); color: var(--palm); }
+  .type-btn.expense.active { background: rgba(232,98,74,0.12); border-color: var(--coral); color: var(--coral); }
+  .btn-primary {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, var(--ocean), var(--ocean-light));
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(26,92,107,0.3);
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-delete {
+    width: 100%;
+    padding: 13px;
+    border: 1.5px solid rgba(232,98,74,0.3);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--coral);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.2s;
+  }
+  .btn-delete:active { background: rgba(232,98,74,0.08); }
+
+  /* Detail modal */
+  .detail-header {
+    background: linear-gradient(135deg, var(--palm), var(--palm-light));
+    margin: -1px -20px 20px;
+    padding: 24px 20px;
+    color: white;
+    border-radius: 16px 16px 0 0;
+  }
+  .detail-header.expense-header { background: linear-gradient(135deg, var(--coral), var(--coral-light)); }
+  .detail-header h2 { font-family: 'DM Serif Display', serif; font-size: 24px; margin-bottom: 4px; }
+  .detail-header .amount { font-family: 'DM Serif Display', serif; font-size: 32px; opacity: 0.9; }
+  .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--sand-dark); }
+  .detail-row:last-of-type { border-bottom: none; }
+  .detail-row .dk { font-size: 12px; color: var(--light); font-weight: 500; text-transform: uppercase; letter-spacing: 0.8px; }
+  .detail-row .dv { font-size: 14px; font-weight: 500; color: var(--dark); text-align: right; }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--light);
+  }
+  .empty-state .emoji { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; line-height: 1.5; }
+
+  /* Month selector */
+  .month-selector {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    margin-bottom: 16px;
+  }
+  .month-selector span {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: var(--dark);
+    font-style: italic;
+  }
+  .month-btn {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 1.5px solid var(--sand-dark);
+    background: var(--card-bg);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ocean);
+    transition: all 0.2s;
+  }
+  .month-btn:active { background: var(--sand-dark); }
+
+  /* PILL FILTERS */
+  .pill-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .pill-row::-webkit-scrollbar { display: none; }
+  .pill {
+    flex-shrink: 0;
+    padding: 7px 14px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1.5px solid var(--sand-dark);
+    background: rgba(255,255,255,0.7);
+    color: var(--mid);
+    transition: all 0.2s;
+  }
+  .pill.active {
+    background: var(--ocean);
+    color: white;
+    border-color: var(--ocean);
+  }
+
+  .hidden { display: none !important; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-80px);
+    background: var(--dark);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 1000;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="header">
+    <div class="header-tag">🏖️ Mi Propiedad</div>
+    <h1 id="prop-name">Casa del Mar<span id="header-month-year"></span></h1>
+  </div>
+
+  <div class="summary-row">
+    <div class="summary-card">
+      <div class="label">📈 Ingresos</div>
+      <div class="amount income" id="sum-income">$0</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">📉 Gastos</div>
+      <div class="amount expense" id="sum-expenses">$0</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">💰 Neto</div>
+      <div class="amount profit" id="sum-profit">$0</div>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <div class="nav-tab active" data-page="calendar">📅 Calendario</div>
+    <div class="nav-tab" data-page="reservations">🏠 Reservas</div>
+    <div class="nav-tab" data-page="expenses">💸 Gastos</div>
+    <div class="nav-tab" data-page="report">📊 Reporte</div>
+  </div>
+
+  <!-- CALENDAR PAGE -->
+  <div class="page active" id="page-calendar">
+    <div class="section">
+      <div class="calendar-wrap">
+        <div class="cal-header">
+          <button class="cal-nav" id="cal-prev">‹</button>
+          <h3 id="cal-month-title"></h3>
+          <button class="cal-nav" id="cal-next">›</button>
+        </div>
+        <div class="cal-grid">
+          <div class="cal-weekdays">
+            <div class="cal-weekday">Do</div>
+            <div class="cal-weekday">Lu</div>
+            <div class="cal-weekday">Ma</div>
+            <div class="cal-weekday">Mi</div>
+            <div class="cal-weekday">Ju</div>
+            <div class="cal-weekday">Vi</div>
+            <div class="cal-weekday">Sá</div>
+          </div>
+          <div class="cal-days" id="cal-days"></div>
+        </div>
+      </div>
+
+      <div id="cal-day-detail"></div>
+
+      <div class="occ-badge" id="occ-badge">
+        <div class="occ-stat">
+          <div class="num" id="occ-days">0</div>
+          <div class="lbl">Días ocupados</div>
+        </div>
+        <div class="occ-divider"></div>
+        <div class="occ-stat">
+          <div class="num" id="occ-pct">0%</div>
+          <div class="lbl">Ocupación</div>
+        </div>
+        <div class="occ-divider"></div>
+        <div class="occ-stat">
+          <div class="num" id="occ-res">0</div>
+          <div class="lbl">Reservas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESERVATIONS PAGE -->
+  <div class="page" id="page-reservations">
+    <div class="section">
+      <div class="month-selector">
+        <button class="month-btn" id="res-prev">‹</button>
+        <span id="res-month-title"></span>
+        <button class="month-btn" id="res-next">›</button>
+      </div>
+      <div id="reservations-list"></div>
+    </div>
+  </div>
+
+  <!-- EXPENSES PAGE -->
+  <div class="page" id="page-expenses">
+    <div class="section">
+      <div class="pill-row" id="expense-filters">
+        <div class="pill active" data-filter="all">Todos</div>
+        <div class="pill" data-filter="mensual">Mensual</div>
+        <div class="pill" data-filter="semanal">Semanal</div>
+        <div class="pill" data-filter="diario">Diario</div>
+        <div class="pill" data-filter="unico">Único</div>
+      </div>
+      <div id="expenses-list"></div>
+    </div>
+  </div>
+
+  <!-- REPORT PAGE -->
+  <div class="page" id="page-report">
+    <div class="section">
+      <div class="month-selector">
+        <button class="month-btn" id="rpt-prev">‹</button>
+        <span id="rpt-month-title"></span>
+        <button class="month-btn" id="rpt-next">›</button>
+      </div>
+
+      <div class="report-card">
+        <div class="report-title">Resumen del mes</div>
+        <div class="report-row">
+          <div class="rlabel">🏠 Total ingresos</div>
+          <div class="rval green" id="rpt-income">$0</div>
+        </div>
+        <div class="report-row">
+          <div class="rlabel">💸 Total gastos</div>
+          <div class="rval red" id="rpt-expenses">$0</div>
+        </div>
+        <div class="report-row total">
+          <div class="rlabel">💰 Ganancia neta</div>
+          <div class="rval blue" id="rpt-profit">$0</div>
+        </div>
+        <div class="bar-wrap">
+          <div class="bar-label">
+            <span>Ingresos</span><span id="rpt-bar-income-pct">0%</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill income" id="rpt-bar-income" style="width:0%"></div></div>
+          <div class="bar-label">
+            <span>Gastos</span><span id="rpt-bar-expense-pct">0%</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill expense" id="rpt-bar-expense" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <div class="report-card">
+        <div class="report-title">Desglose de gastos</div>
+        <div id="expense-breakdown"></div>
+      </div>
+
+      <div class="report-card">
+        <div class="report-title">Ocupación del mes</div>
+        <div class="report-row">
+          <div class="rlabel">📅 Días ocupados</div>
+          <div class="rval blue" id="rpt-occ-days">0</div>
+        </div>
+        <div class="report-row">
+          <div class="rlabel">📊 % Ocupación</div>
+          <div class="rval blue" id="rpt-occ-pct">0%</div>
+        </div>
+        <div class="report-row">
+          <div class="rlabel">🏠 # Reservas</div>
+          <div class="rval blue" id="rpt-res-count">0</div>
+        </div>
+        <div class="report-row">
+          <div class="rlabel">💵 Promedio/noche</div>
+          <div class="rval green" id="rpt-avg-night">$0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" id="fab-btn">+</button>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="bn-item active" data-page="calendar">
+    <span class="bn-icon">📅</span>
+    <span class="bn-label">Calendario</span>
+  </button>
+  <button class="bn-item" data-page="reservations">
+    <span class="bn-icon">🏠</span>
+    <span class="bn-label">Reservas</span>
+  </button>
+  <button class="bn-item" data-page="expenses">
+    <span class="bn-icon">💸</span>
+    <span class="bn-label">Gastos</span>
+  </button>
+  <button class="bn-item" data-page="report">
+    <span class="bn-icon">📊</span>
+    <span class="bn-label">Reporte</span>
+  </button>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="add-modal-title">Nueva entrada</div>
+    <div class="type-toggle" id="type-toggle">
+      <button class="type-btn income active" data-type="income">🏠 Reserva</button>
+      <button class="type-btn expense" data-type="expense">💸 Gasto</button>
+    </div>
+    <br>
+
+    <!-- INCOME FORM -->
+    <div id="income-form">
+      <div class="form-group">
+        <label class="form-label">Nombre del huésped</label>
+        <input class="form-input" id="i-guest" type="text" placeholder="Ej. Juan García">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Check-in</label>
+          <input class="form-input" id="i-checkin" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Check-out</label>
+          <input class="form-input" id="i-checkout" type="date">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Monto total</label>
+          <input class="form-input" id="i-amount" type="number" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Plataforma</label>
+          <select class="form-input" id="i-platform">
+            <option>Airbnb</option>
+            <option>Booking</option>
+            <option>Vrbo</option>
+            <option>Directo</option>
+            <option>Otra</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">N° huéspedes</label>
+        <input class="form-input" id="i-guests" type="number" placeholder="2" min="1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notas</label>
+        <input class="form-input" id="i-notes" type="text" placeholder="Información adicional...">
+      </div>
+    </div>
+
+    <!-- EXPENSE FORM -->
+    <div id="expense-form" class="hidden">
+      <div class="form-group">
+        <label class="form-label">Categoría</label>
+        <select class="form-input" id="e-category">
+          <option value="Electricidad">⚡ Electricidad</option>
+          <option value="Agua">💧 Agua</option>
+          <option value="Internet">📶 Internet</option>
+          <option value="Limpieza">🧹 Limpieza</option>
+          <option value="Piscina">🏊 Piscina</option>
+          <option value="Mantenimiento">🔧 Mantenimiento</option>
+          <option value="Gas">🔥 Gas</option>
+          <option value="Jardinería">🌿 Jardinería</option>
+          <option value="Impuestos">📋 Impuestos</option>
+          <option value="Seguro">🛡️ Seguro</option>
+          <option value="Otro">📦 Otro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descripción</label>
+        <input class="form-input" id="e-desc" type="text" placeholder="Ej. Factura de luz julio">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Monto</label>
+          <input class="form-input" id="e-amount" type="number" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Frecuencia</label>
+          <select class="form-input" id="e-frequency">
+            <option value="unico">Único</option>
+            <option value="diario">Diario</option>
+            <option value="semanal">Semanal</option>
+            <option value="mensual">Mensual</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fecha</label>
+        <input class="form-input" id="e-date" type="date">
+      </div>
+    </div>
+
+    <button class="btn-primary" id="save-btn">Guardar</button>
+    <button class="btn-delete hidden" id="cancel-btn" style="border-color:transparent;color:var(--light)">Cancelar</button>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal" id="detail-modal-content"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== STATE =====
+let state = {
+  reservations: [],
+  expenses: [],
+  viewMonth: new Date().getMonth(),
+  viewYear: new Date().getFullYear(),
+  calMonth: new Date().getMonth(),
+  calYear: new Date().getFullYear(),
+  rptMonth: new Date().getMonth(),
+  rptYear: new Date().getFullYear(),
+  currentPage: 'calendar',
+  editingId: null,
+  editingType: null,
+  expenseFilter: 'all'
+};
+
+// Load from localStorage
+function loadData() {
+  try {
+    const saved = localStorage.getItem('vctracker');
+    if (saved) {
+      const d = JSON.parse(saved);
+      state.reservations = d.reservations || [];
+      state.expenses = d.expenses || [];
+    }
+  } catch(e) {}
+}
+
+function saveData() {
+  localStorage.setItem('vctracker', JSON.stringify({
+    reservations: state.reservations,
+    expenses: state.expenses
+  }));
+}
+
+// ===== HELPERS =====
+const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const fmt = (n) => '$' + Number(n).toLocaleString('es-MX', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+const fmtDate = (d) => { if (!d) return ''; const [y,m,dd] = d.split('-'); return `${dd}/${m}/${y}`; };
+const today = () => { const n = new Date(); return n.toISOString().split('T')[0]; };
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Get occupied dates for a month
+function getOccupiedDates(month, year) {
+  const occupied = {};
+  state.reservations.forEach(r => {
+    const start = new Date(r.checkin + 'T12:00:00');
+    const end = new Date(r.checkout + 'T12:00:00');
+    let cur = new Date(start);
+    while (cur < end) {
+      if (cur.getMonth() === month && cur.getFullYear() === year) {
+        const day = cur.getDate();
+        if (!occupied[day]) occupied[day] = [];
+        occupied[day].push(r);
+      }
+      cur.setDate(cur.getDate() + 1);
+    }
+  });
+  return occupied;
+}
+
+// Expenses for a month
+function getMonthExpenses(month, year) {
+  return state.expenses.filter(e => {
+    const d = new Date(e.date + 'T12:00:00');
+    if (e.frequency === 'mensual') return true; // show all months? simplify: filter by creation month
+    return d.getMonth() === month && d.getFullYear() === year;
+  }).map(e => {
+    let amt = parseFloat(e.amount);
+    // If monthly, just show once
+    return {...e, displayAmount: amt};
+  });
+}
+
+// Reservations for a month
+function getMonthReservations(month, year) {
+  return state.reservations.filter(r => {
+    const ci = new Date(r.checkin + 'T12:00:00');
+    const co = new Date(r.checkout + 'T12:00:00');
+    const mStart = new Date(year, month, 1);
+    const mEnd = new Date(year, month + 1, 0);
+    return ci <= mEnd && co >= mStart;
+  });
+}
+
+// ===== SUMMARY =====
+function updateSummary() {
+  const m = state.calMonth, y = state.calYear;
+  document.getElementById('header-month-year').textContent = ` · ${months[m]} ${y}`;
+
+  const res = getMonthReservations(m, y);
+  const income = res.reduce((sum, r) => sum + parseFloat(r.amount), 0);
+
+  const exp = getMonthExpenses(m, y);
+  const expenses = exp.reduce((sum, e) => sum + parseFloat(e.amount), 0);
+  const profit = income - expenses;
+
+  document.getElementById('sum-income').textContent = fmt(income);
+  document.getElementById('sum-expenses').textContent = fmt(expenses);
+  document.getElementById('sum-profit').textContent = fmt(profit);
+  document.getElementById('sum-profit').style.color = profit >= 0 ? 'var(--ocean)' : 'var(--coral)';
+}
+
+// ===== CALENDAR =====
+function renderCalendar() {
+  const m = state.calMonth, y = state.calYear;
+  document.getElementById('cal-month-title').textContent = `${months[m]} ${y}`;
+
+  const firstDay = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const todayStr = today();
+  const occupied = getOccupiedDates(m, y);
+
+  let html = '';
+  for (let i = 0; i < firstDay; i++) html += `<div class="cal-day empty"></div>`;
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = dateStr === todayStr;
+    const isOcc = !!occupied[d];
+    let cls = 'cal-day';
+    if (isToday) cls += ' today';
+    if (isOcc) cls += ' occupied';
+    const dot = isOcc ? '<div class="dot"></div>' : '';
+    html += `<div class="${cls}" data-date="${dateStr}" data-day="${d}">${d}${dot}</div>`;
+  }
+
+  document.getElementById('cal-days').innerHTML = html;
+
+  // Occupancy stats
+  const occDays = Object.keys(occupied).length;
+  const pct = Math.round((occDays / daysInMonth) * 100);
+  const resCount = getMonthReservations(m, y).length;
+  document.getElementById('occ-days').textContent = occDays;
+  document.getElementById('occ-pct').textContent = pct + '%';
+  document.getElementById('occ-res').textContent = resCount;
+
+  // Click on day
+  document.querySelectorAll('.cal-day:not(.empty)').forEach(el => {
+    el.addEventListener('click', () => {
+      const dateStr = el.dataset.date;
+      const day = parseInt(el.dataset.day);
+      const res = occupied[day];
+      if (res && res.length > 0) {
+        showDetailModal(res[0], 'income');
+      } else {
+        // Pre-fill checkin
+        document.getElementById('i-checkin').value = dateStr;
+        showAddModal('income');
+      }
+    });
+  });
+
+  document.getElementById('cal-day-detail').innerHTML = '';
+}
+
+// ===== RESERVATIONS =====
+function renderReservations() {
+  const m = state.viewMonth, y = state.viewYear;
+  document.getElementById('res-month-title').textContent = `${months[m]} ${y}`;
+  const res = getMonthReservations(m, y);
+  res.sort((a,b) => a.checkin.localeCompare(b.checkin));
+
+  const container = document.getElementById('reservations-list');
+  if (res.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="emoji">🌴</div><p>No hay reservas en ${months[m]}.<br>¡Toca + para agregar una!</p></div>`;
+    return;
+  }
+
+  const platformEmoji = {'Airbnb':'🏠','Booking':'🛏️','Vrbo':'🏡','Directo':'🤝','Otra':'📱'};
+  container.innerHTML = res.map(r => {
+    const ci = new Date(r.checkin + 'T12:00:00');
+    const co = new Date(r.checkout + 'T12:00:00');
+    const nights = Math.round((co - ci) / 86400000);
+    const emoji = platformEmoji[r.platform] || '🏠';
+    return `<div class="booking-card" data-id="${r.id}">
+      <div class="booking-icon">${emoji}</div>
+      <div class="booking-info">
+        <div class="booking-guest">${r.guest}</div>
+        <div class="booking-dates">${fmtDate(r.checkin)} → ${fmtDate(r.checkout)} · ${nights} noches</div>
+        <div class="booking-tags">
+          <span class="booking-tag">${r.platform}</span>
+          <span class="booking-tag">👥 ${r.guests || 1} huéspedes</span>
+          ${r.notes ? `<span class="booking-tag">💬</span>` : ''}
+        </div>
+      </div>
+      <div class="booking-amount">${fmt(r.amount)}</div>
+    </div>`;
+  }).join('');
+
+  container.querySelectorAll('.booking-card').forEach(el => {
+    el.addEventListener('click', () => {
+      const r = state.reservations.find(x => x.id === el.dataset.id);
+      if (r) showDetailModal(r, 'income');
+    });
+  });
+}
+
+// ===== EXPENSES =====
+function renderExpenses() {
+  const filter = state.expenseFilter;
+  let exps = [...state.expenses];
+  if (filter !== 'all') exps = exps.filter(e => e.frequency === filter);
+  exps.sort((a,b) => b.date.localeCompare(a.date));
+
+  const catIcon = {
+    'Electricidad':'⚡','Agua':'💧','Internet':'📶','Limpieza':'🧹',
+    'Piscina':'🏊','Mantenimiento':'🔧','Gas':'🔥','Jardinería':'🌿',
+    'Impuestos':'📋','Seguro':'🛡️','Otro':'📦'
+  };
+  const catClass = {
+    'Electricidad':'utilities','Agua':'utilities','Gas':'utilities',
+    'Limpieza':'cleaning','Piscina':'pool','Internet':'internet',
+    'Mantenimiento':'maintenance','Jardinería':'maintenance',
+    'Impuestos':'other','Seguro':'other','Otro':'other'
+  };
+
+  const container = document.getElementById('expenses-list');
+  if (exps.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="emoji">💸</div><p>No hay gastos registrados.<br>Toca + para agregar uno.</p></div>`;
+    return;
+  }
+
+  container.innerHTML = exps.map(e => {
+    const icon = catIcon[e.category] || '📦';
+    const cls = catClass[e.category] || 'other';
+    return `<div class="expense-item" data-id="${e.id}">
+      <div class="expense-icon ${cls}">${icon}</div>
+      <div class="expense-info">
+        <div class="expense-name">${e.category}${e.description ? ` · ${e.description}` : ''}</div>
+        <div class="expense-meta">${fmtDate(e.date)} <span class="freq-badge ${e.frequency}">${e.frequency.charAt(0).toUpperCase()+e.frequency.slice(1)}</span></div>
+      </div>
+      <div class="expense-amount">${fmt(e.amount)}</div>
+    </div>`;
+  }).join('');
+
+  container.querySelectorAll('.expense-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const exp = state.expenses.find(x => x.id === el.dataset.id);
+      if (exp) showDetailModal(exp, 'expense');
+    });
+  });
+}
+
+// ===== REPORT =====
+function renderReport() {
+  const m = state.rptMonth, y = state.rptYear;
+  document.getElementById('rpt-month-title').textContent = `${months[m]} ${y}`;
+
+  const res = getMonthReservations(m, y);
+  const income = res.reduce((sum, r) => sum + parseFloat(r.amount), 0);
+  const exp = getMonthExpenses(m, y);
+  const expenses = exp.reduce((sum, e) => sum + parseFloat(e.amount), 0);
+  const profit = income - expenses;
+  const max = Math.max(income, expenses, 1);
+
+  document.getElementById('rpt-income').textContent = fmt(income);
+  document.getElementById('rpt-expenses').textContent = fmt(expenses);
+  const pEl = document.getElementById('rpt-profit');
+  pEl.textContent = fmt(profit);
+  pEl.className = 'rval ' + (profit >= 0 ? 'blue' : 'red');
+
+  const incPct = Math.round((income/max)*100);
+  const expPct = Math.round((expenses/max)*100);
+  document.getElementById('rpt-bar-income').style.width = incPct + '%';
+  document.getElementById('rpt-bar-expense').style.width = expPct + '%';
+  document.getElementById('rpt-bar-income-pct').textContent = incPct + '%';
+  document.getElementById('rpt-bar-expense-pct').textContent = expPct + '%';
+
+  // Expense breakdown by category
+  const catTotals = {};
+  exp.forEach(e => {
+    catTotals[e.category] = (catTotals[e.category] || 0) + parseFloat(e.amount);
+  });
+  const catEmoji = {'Electricidad':'⚡','Agua':'💧','Internet':'📶','Limpieza':'🧹','Piscina':'🏊','Mantenimiento':'🔧','Gas':'🔥','Jardinería':'🌿','Impuestos':'📋','Seguro':'🛡️','Otro':'📦'};
+  const breakdown = Object.entries(catTotals).sort((a,b) => b[1]-a[1]);
+  document.getElementById('expense-breakdown').innerHTML = breakdown.length === 0
+    ? '<div style="text-align:center;padding:20px;color:var(--light);font-size:14px">Sin gastos este mes</div>'
+    : breakdown.map(([cat, amt]) => `<div class="report-row">
+        <div class="rlabel">${catEmoji[cat]||'📦'} ${cat}</div>
+        <div class="rval red">${fmt(amt)}</div>
+      </div>`).join('');
+
+  // Occupancy
+  const occ = getOccupiedDates(m, y);
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const occDays = Object.keys(occ).length;
+  const nights = res.reduce((s,r) => { const ci=new Date(r.checkin+'T12:00:00'),co=new Date(r.checkout+'T12:00:00'); return s+Math.round((co-ci)/86400000); }, 0);
+  document.getElementById('rpt-occ-days').textContent = occDays;
+  document.getElementById('rpt-occ-pct').textContent = Math.round((occDays/daysInMonth)*100) + '%';
+  document.getElementById('rpt-res-count').textContent = res.length;
+  document.getElementById('rpt-avg-night').textContent = nights > 0 ? fmt(income/nights) : '$0';
+}
+
+// ===== MODALS =====
+function showAddModal(type = 'income', editId = null) {
+  state.editingId = editId;
+  state.editingType = editId ? type : null;
+
+  const modal = document.getElementById('add-modal');
+  const title = document.getElementById('add-modal-title');
+  const cancelBtn = document.getElementById('cancel-btn');
+
+  if (editId) {
+    title.textContent = type === 'income' ? 'Editar reserva' : 'Editar gasto';
+    cancelBtn.classList.remove('hidden');
+    cancelBtn.textContent = 'Eliminar';
+    cancelBtn.classList.remove('hidden');
+  } else {
+    title.textContent = 'Nueva entrada';
+    cancelBtn.classList.add('hidden');
+  }
+
+  // Toggle type
+  document.querySelectorAll('.type-btn').forEach(b => {
+    b.classList.remove('active');
+    if (b.dataset.type === type) b.classList.add('active');
+  });
+  switchType(type);
+
+  // Pre-fill if editing
+  if (editId) {
+    if (type === 'income') {
+      const r = state.reservations.find(x => x.id === editId);
+      if (r) {
+        document.getElementById('i-guest').value = r.guest;
+        document.getElementById('i-checkin').value = r.checkin;
+        document.getElementById('i-checkout').value = r.checkout;
+        document.getElementById('i-amount').value = r.amount;
+        document.getElementById('i-platform').value = r.platform;
+        document.getElementById('i-guests').value = r.guests;
+        document.getElementById('i-notes').value = r.notes || '';
+      }
+    } else {
+      const e = state.expenses.find(x => x.id === editId);
+      if (e) {
+        document.getElementById('e-category').value = e.category;
+        document.getElementById('e-desc').value = e.description || '';
+        document.getElementById('e-amount').value = e.amount;
+        document.getElementById('e-frequency').value = e.frequency;
+        document.getElementById('e-date').value = e.date;
+      }
+    }
+  } else {
+    // Clear form
+    document.getElementById('i-guest').value = '';
+    if (!document.getElementById('i-checkin').value) document.getElementById('i-checkin').value = today();
+    document.getElementById('i-checkout').value = '';
+    document.getElementById('i-amount').value = '';
+    document.getElementById('i-platform').value = 'Airbnb';
+    document.getElementById('i-guests').value = '';
+    document.getElementById('i-notes').value = '';
+    document.getElementById('e-category').value = 'Electricidad';
+    document.getElementById('e-desc').value = '';
+    document.getElementById('e-amount').value = '';
+    document.getElementById('e-frequency').value = 'mensual';
+    document.getElementById('e-date').value = today();
+  }
+
+  modal.classList.add('open');
+}
+
+function closeAddModal() {
+  document.getElementById('add-modal').classList.remove('open');
+}
+
+function switchType(type) {
+  if (type === 'income') {
+    document.getElementById('income-form').classList.remove('hidden');
+    document.getElementById('expense-form').classList.add('hidden');
+  } else {
+    document.getElementById('income-form').classList.add('hidden');
+    document.getElementById('expense-form').classList.remove('hidden');
+  }
+}
+
+function showDetailModal(item, type) {
+  const modal = document.getElementById('detail-modal');
+  const content = document.getElementById('detail-modal-content');
+
+  let html = '<div class="modal-handle"></div>';
+  if (type === 'income') {
+    const ci = new Date(item.checkin + 'T12:00:00');
+    const co = new Date(item.checkout + 'T12:00:00');
+    const nights = Math.round((co - ci) / 86400000);
+    const perNight = nights > 0 ? fmt(item.amount / nights) : '$0';
+    html += `<div class="detail-header">
+      <h2>🏠 ${item.guest}</h2>
+      <div class="amount">${fmt(item.amount)}</div>
+    </div>
+    <div class="detail-row"><span class="dk">Check-in</span><span class="dv">${fmtDate(item.checkin)}</span></div>
+    <div class="detail-row"><span class="dk">Check-out</span><span class="dv">${fmtDate(item.checkout)}</span></div>
+    <div class="detail-row"><span class="dk">Noches</span><span class="dv">${nights}</span></div>
+    <div class="detail-row"><span class="dk">Por noche</span><span class="dv">${perNight}</span></div>
+    <div class="detail-row"><span class="dk">Plataforma</span><span class="dv">${item.platform}</span></div>
+    <div class="detail-row"><span class="dk">Huéspedes</span><span class="dv">${item.guests || 1}</span></div>
+    ${item.notes ? `<div class="detail-row"><span class="dk">Notas</span><span class="dv">${item.notes}</span></div>` : ''}
+    <br>
+    <button class="btn-primary" onclick="editItem('${item.id}','income')">✏️ Editar</button>
+    <button class="btn-delete" onclick="deleteItem('${item.id}','income')">Eliminar reserva</button>`;
+  } else {
+    const catEmoji = {'Electricidad':'⚡','Agua':'💧','Internet':'📶','Limpieza':'🧹','Piscina':'🏊','Mantenimiento':'🔧','Gas':'🔥','Jardinería':'🌿','Impuestos':'📋','Seguro':'🛡️','Otro':'📦'};
+    html += `<div class="detail-header expense-header">
+      <h2>${catEmoji[item.category]||'📦'} ${item.category}</h2>
+      <div class="amount">${fmt(item.amount)}</div>
+    </div>
+    ${item.description ? `<div class="detail-row"><span class="dk">Descripción</span><span class="dv">${item.description}</span></div>` : ''}
+    <div class="detail-row"><span class="dk">Fecha</span><span class="dv">${fmtDate(item.date)}</span></div>
+    <div class="detail-row"><span class="dk">Frecuencia</span><span class="dv">${item.frequency.charAt(0).toUpperCase()+item.frequency.slice(1)}</span></div>
+    <br>
+    <button class="btn-primary" onclick="editItem('${item.id}','expense')">✏️ Editar</button>
+    <button class="btn-delete" onclick="deleteItem('${item.id}','expense')">Eliminar gasto</button>`;
+  }
+
+  content.innerHTML = html;
+  modal.classList.add('open');
+}
+
+function closeDetailModal() {
+  document.getElementById('detail-modal').classList.remove('open');
+}
+
+window.editItem = function(id, type) {
+  closeDetailModal();
+  setTimeout(() => showAddModal(type, id), 300);
+};
+
+window.deleteItem = function(id, type) {
+  if (type === 'income') {
+    state.reservations = state.reservations.filter(r => r.id !== id);
+  } else {
+    state.expenses = state.expenses.filter(e => e.id !== id);
+  }
+  saveData();
+  closeDetailModal();
+  renderAll();
+  showToast('✓ Eliminado');
+};
+
+// ===== SAVE =====
+function saveEntry() {
+  const activeType = document.querySelector('.type-btn.active')?.dataset.type || 'income';
+
+  if (activeType === 'income') {
+    const guest = document.getElementById('i-guest').value.trim();
+    const checkin = document.getElementById('i-checkin').value;
+    const checkout = document.getElementById('i-checkout').value;
+    const amount = parseFloat(document.getElementById('i-amount').value);
+    const platform = document.getElementById('i-platform').value;
+    const guests = parseInt(document.getElementById('i-guests').value) || 1;
+    const notes = document.getElementById('i-notes').value.trim();
+
+    if (!guest || !checkin || !checkout || !amount) { showToast('⚠️ Completa todos los campos'); return; }
+    if (checkin >= checkout) { showToast('⚠️ La fecha de salida debe ser posterior'); return; }
+
+    if (state.editingId) {
+      const idx = state.reservations.findIndex(r => r.id === state.editingId);
+      if (idx >= 0) state.reservations[idx] = { ...state.reservations[idx], guest, checkin, checkout, amount, platform, guests, notes };
+    } else {
+      state.reservations.push({ id: uid(), guest, checkin, checkout, amount, platform, guests, notes });
+    }
+  } else {
+    const category = document.getElementById('e-category').value;
+    const description = document.getElementById('e-desc').value.trim();
+    const amount = parseFloat(document.getElementById('e-amount').value);
+    const frequency = document.getElementById('e-frequency').value;
+    const date = document.getElementById('e-date').value;
+
+    if (!amount || !date) { showToast('⚠️ Completa todos los campos'); return; }
+
+    if (state.editingId) {
+      const idx = state.expenses.findIndex(e => e.id === state.editingId);
+      if (idx >= 0) state.expenses[idx] = { ...state.expenses[idx], category, description, amount, frequency, date };
+    } else {
+      state.expenses.push({ id: uid(), category, description, amount, frequency, date });
+    }
+  }
+
+  saveData();
+  closeAddModal();
+  renderAll();
+  showToast(state.editingId ? '✓ Actualizado' : '✓ Guardado');
+  state.editingId = null;
+}
+
+// ===== RENDER ALL =====
+function renderAll() {
+  updateSummary();
+  if (state.currentPage === 'calendar') renderCalendar();
+  if (state.currentPage === 'reservations') renderReservations();
+  if (state.currentPage === 'expenses') renderExpenses();
+  if (state.currentPage === 'report') renderReport();
+}
+
+// ===== EVENTS =====
+// Nav tabs
+document.querySelectorAll('.nav-tab').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    const page = el.dataset.page;
+    switchPage(page);
+  });
+});
+
+// Bottom nav
+document.querySelectorAll('.bn-item').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    const page = el.dataset.page;
+    // Sync nav tabs
+    document.querySelectorAll('.nav-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.page === page);
+    });
+    switchPage(page);
+  });
+});
+
+function switchPage(page) {
+  state.currentPage = page;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  renderAll();
+}
+
+// FAB
+document.getElementById('fab-btn').addEventListener('click', () => {
+  const type = state.currentPage === 'expenses' ? 'expense' : 'income';
+  showAddModal(type);
+});
+
+// Modal overlays
+document.getElementById('add-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('add-modal')) closeAddModal();
+});
+document.getElementById('detail-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('detail-modal')) closeDetailModal();
+});
+
+// Type toggle
+document.querySelectorAll('.type-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.type-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    switchType(b.dataset.type);
+  });
+});
+
+// Save
+document.getElementById('save-btn').addEventListener('click', saveEntry);
+
+// Cancel/Delete in modal
+document.getElementById('cancel-btn').addEventListener('click', () => {
+  if (state.editingId && state.editingType) {
+    deleteItem(state.editingId, state.editingType);
+    closeAddModal();
+  }
+});
+
+// Calendar nav
+document.getElementById('cal-prev').addEventListener('click', () => {
+  state.calMonth--; if (state.calMonth < 0) { state.calMonth = 11; state.calYear--; }
+  renderAll();
+});
+document.getElementById('cal-next').addEventListener('click', () => {
+  state.calMonth++; if (state.calMonth > 11) { state.calMonth = 0; state.calYear++; }
+  renderAll();
+});
+
+// Reservations month nav
+document.getElementById('res-prev').addEventListener('click', () => {
+  state.viewMonth--; if (state.viewMonth < 0) { state.viewMonth = 11; state.viewYear--; }
+  renderReservations();
+});
+document.getElementById('res-next').addEventListener('click', () => {
+  state.viewMonth++; if (state.viewMonth > 11) { state.viewMonth = 0; state.viewYear++; }
+  renderReservations();
+});
+
+// Report month nav
+document.getElementById('rpt-prev').addEventListener('click', () => {
+  state.rptMonth--; if (state.rptMonth < 0) { state.rptMonth = 11; state.rptYear--; }
+  renderReport();
+});
+document.getElementById('rpt-next').addEventListener('click', () => {
+  state.rptMonth++; if (state.rptMonth > 11) { state.rptMonth = 0; state.rptYear++; }
+  renderReport();
+});
+
+// Expense filter pills
+document.querySelectorAll('#expense-filters .pill').forEach(p => {
+  p.addEventListener('click', () => {
+    document.querySelectorAll('#expense-filters .pill').forEach(x => x.classList.remove('active'));
+    p.classList.add('active');
+    state.expenseFilter = p.dataset.filter;
+    renderExpenses();
+  });
+});
+
+// ===== INIT =====
+loadData();
+
+// Seed sample data if empty
+if (state.reservations.length === 0 && state.expenses.length === 0) {
+  const y = new Date().getFullYear(), m = String(new Date().getMonth()+1).padStart(2,'0');
+  state.reservations = [
+    { id: uid(), guest: 'María Rodríguez', checkin: `${y}-${m}-03`, checkout: `${y}-${m}-08`, amount: 1500, platform: 'Airbnb', guests: 4, notes: 'Familia con niños' },
+    { id: uid(), guest: 'Carlos Méndez', checkin: `${y}-${m}-12`, checkout: `${y}-${m}-16`, amount: 900, platform: 'Booking', guests: 2, notes: '' },
+    { id: uid(), guest: 'Laura García', checkin: `${y}-${m}-22`, checkout: `${y}-${m}-28`, amount: 1800, platform: 'Directo', guests: 6, notes: 'Evento familiar' },
+  ];
+  state.expenses = [
+    { id: uid(), category: 'Electricidad', description: `Factura ${months[new Date().getMonth()]}`, amount: 180, frequency: 'mensual', date: `${y}-${m}-01` },
+    { id: uid(), category: 'Agua', description: '', amount: 45, frequency: 'mensual', date: `${y}-${m}-01` },
+    { id: uid(), category: 'Internet', description: 'Fibra 200mb', amount: 60, frequency: 'mensual', date: `${y}-${m}-01` },
+    { id: uid(), category: 'Limpieza', description: 'Empleada doméstica', amount: 120, frequency: 'semanal', date: `${y}-${m}-05` },
+    { id: uid(), category: 'Piscina', description: 'Mantenimiento quincenal', amount: 200, frequency: 'mensual', date: `${y}-${m}-10` },
+  ];
+  saveData();
+}
+
+renderAll();
+</script>
+</body>
+</html>
