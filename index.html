@@ -3,1613 +3,1408 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Casa Vacacional · Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>VacaTrack · Gestión de Propiedades</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --sand: #F5EFE0;
-    --sand-dark: #EDE4CC;
-    --ocean: #1A5C6B;
-    --ocean-light: #2A7A8E;
-    --coral: #E8624A;
-    --coral-light: #F08070;
-    --palm: #2E7D52;
-    --palm-light: #3E9E68;
-    --gold: #C8963E;
-    --dark: #1C1C1E;
-    --mid: #4A4A4F;
-    --light: #8E8E93;
-    --white: #FFFFFF;
-    --card-bg: rgba(255,255,255,0.85);
-    --shadow: 0 4px 24px rgba(26,92,107,0.12);
-    --shadow-lg: 0 12px 48px rgba(26,92,107,0.18);
-    --radius: 20px;
-    --radius-sm: 12px;
-  }
+:root {
+  --bg: #0A0F0D;
+  --bg2: #111810;
+  --bg3: #161E18;
+  --card: #1C2620;
+  --card2: #222E27;
+  --border: rgba(255,255,255,0.07);
+  --green: #4ADE80;
+  --green2: #22C55E;
+  --green3: #16A34A;
+  --greenDim: rgba(74,222,128,0.12);
+  --greenDim2: rgba(74,222,128,0.06);
+  --red: #F87171;
+  --redDim: rgba(248,113,113,0.12);
+  --gold: #FBBF24;
+  --goldDim: rgba(251,191,36,0.12);
+  --blue: #60A5FA;
+  --blueDim: rgba(96,165,250,0.12);
+  --text: #F0F4F0;
+  --text2: #8FA898;
+  --text3: #5A7060;
+  --radius: 18px;
+  --radius-sm: 10px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow:hidden; }
+body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); }
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--sand);
-    color: var(--dark);
-    min-height: 100vh;
-    overflow-x: hidden;
-    position: relative;
-  }
+/* ── SCROLL CONTAINERS ── */
+.scroll { overflow-y:auto; -webkit-overflow-scrolling:touch; }
+.scroll::-webkit-scrollbar { width:3px; }
+.scroll::-webkit-scrollbar-track { background:transparent; }
+.scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:99px; }
 
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 300px;
-    background: linear-gradient(160deg, var(--ocean) 0%, var(--ocean-light) 60%, var(--sand) 100%);
-    z-index: 0;
-  }
+/* ── LOADER ── */
+#loader { position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; z-index:9999; flex-direction:column; gap:16px; }
+.loader-logo { font-family:'Playfair Display',serif; font-size:28px; color:var(--green); letter-spacing:-1px; }
+.loader-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:0.2;transform:scale(0.8)} 50%{opacity:1;transform:scale(1)} }
 
-  /* Subtle wave pattern */
-  body::after {
-    content: '';
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    height: 120px;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120'%3E%3Cpath d='M0,60 C200,100 400,20 600,60 C800,100 1000,20 1200,60 L1200,120 L0,120 Z' fill='%23F5EFE0' opacity='0.3'/%3E%3C/svg%3E") no-repeat bottom center;
-    background-size: cover;
-    z-index: 0;
-    pointer-events: none;
-  }
+/* ── AUTH SCREEN ── */
+#auth-screen { position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; z-index:100; padding:20px; }
+.auth-card { width:100%; max-width:380px; background:var(--card); border:1px solid var(--border); border-radius:24px; padding:36px 28px; }
+.auth-logo { font-family:'Playfair Display',serif; font-size:26px; color:var(--green); margin-bottom:6px; letter-spacing:-0.5px; }
+.auth-sub { font-size:13px; color:var(--text2); margin-bottom:32px; }
+.auth-label { font-size:11px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--text3); margin-bottom:8px; display:block; }
+.auth-input { width:100%; padding:14px 16px; background:var(--bg3); border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:'Outfit',sans-serif; font-size:15px; color:var(--text); outline:none; transition:border-color 0.2s; margin-bottom:16px; }
+.auth-input:focus { border-color:var(--green); }
+.auth-btn { width:100%; padding:15px; border:none; border-radius:var(--radius-sm); background:var(--green); color:#0A0F0D; font-family:'Outfit',sans-serif; font-size:15px; font-weight:600; cursor:pointer; transition:all 0.2s; margin-top:8px; }
+.auth-btn:active { transform:scale(0.98); }
+.auth-btn:disabled { opacity:0.5; }
+.auth-err { font-size:13px; color:var(--red); margin-top:12px; text-align:center; min-height:20px; }
 
-  #app {
-    position: relative;
-    z-index: 1;
-    max-width: 430px;
-    margin: 0 auto;
-    min-height: 100vh;
-    padding-bottom: 100px;
-  }
+/* ── APP SHELL ── */
+#app { display:none; height:100vh; flex-direction:column; }
+#app.visible { display:flex; }
 
-  /* HEADER */
-  .header {
-    padding: 52px 20px 20px;
-    color: white;
-  }
-  .header-tag {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    opacity: 0.7;
-    margin-bottom: 6px;
-  }
-  .header h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 30px;
-    line-height: 1.1;
-    font-style: italic;
-  }
-  .header h1 span { opacity: 0.65; font-size: 18px; display: block; font-style: normal; font-weight: 300; }
+/* ── TOP BAR ── */
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:16px 20px 12px; background:var(--bg); border-bottom:1px solid var(--border); flex-shrink:0; }
+.topbar-logo { font-family:'Playfair Display',serif; font-size:20px; color:var(--green); letter-spacing:-0.5px; }
+.topbar-right { display:flex; align-items:center; gap:10px; }
+.currency-toggle { display:flex; background:var(--card); border-radius:99px; overflow:hidden; border:1px solid var(--border); }
+.currency-btn { padding:5px 12px; font-size:12px; font-weight:600; cursor:pointer; border:none; background:none; color:var(--text2); font-family:'Outfit',sans-serif; transition:all 0.2s; }
+.currency-btn.active { background:var(--green); color:#0A0F0D; }
+.avatar-btn { width:34px; height:34px; border-radius:50%; background:var(--greenDim); border:1px solid var(--green); color:var(--green); font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; position:relative; }
 
-  /* SUMMARY CARDS */
-  .summary-row {
-    display: flex;
-    gap: 12px;
-    padding: 0 20px;
-    margin-bottom: 24px;
-  }
-  .summary-card {
-    flex: 1;
-    background: var(--card-bg);
-    backdrop-filter: blur(12px);
-    border-radius: var(--radius-sm);
-    padding: 16px 14px;
-    box-shadow: var(--shadow);
-    border: 1px solid rgba(255,255,255,0.6);
-  }
-  .summary-card .label {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--light);
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .summary-card .amount {
-    font-family: 'DM Serif Display', serif;
-    font-size: 22px;
-    color: var(--dark);
-  }
-  .summary-card .amount.income { color: var(--palm); }
-  .summary-card .amount.expense { color: var(--coral); }
-  .summary-card .amount.profit { color: var(--ocean); }
+/* ── NAV TABS ── */
+.nav-tabs { display:flex; padding:0 16px; gap:4px; border-bottom:1px solid var(--border); flex-shrink:0; background:var(--bg); overflow-x:auto; scrollbar-width:none; }
+.nav-tabs::-webkit-scrollbar { display:none; }
+.nav-tab { flex-shrink:0; padding:10px 14px; font-size:12px; font-weight:500; color:var(--text3); cursor:pointer; border-bottom:2px solid transparent; transition:all 0.2s; white-space:nowrap; }
+.nav-tab.active { color:var(--green); border-bottom-color:var(--green); }
 
-  /* NAV */
-  .nav-tabs {
-    display: flex;
-    gap: 8px;
-    padding: 0 20px;
-    margin-bottom: 20px;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .nav-tabs::-webkit-scrollbar { display: none; }
-  .nav-tab {
-    flex-shrink: 0;
-    padding: 9px 18px;
-    border-radius: 50px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    border: 1.5px solid transparent;
-    background: rgba(255,255,255,0.6);
-    color: var(--mid);
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-  .nav-tab.active {
-    background: var(--ocean);
-    color: white;
-    border-color: var(--ocean);
-    box-shadow: 0 4px 12px rgba(26,92,107,0.3);
-  }
+/* ── MAIN CONTENT ── */
+.main { flex:1; overflow:hidden; position:relative; }
+.view { position:absolute; inset:0; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:20px; display:none; }
+.view.active { display:block; }
+.view::-webkit-scrollbar { width:3px; }
+.view::-webkit-scrollbar-thumb { background:var(--border); border-radius:99px; }
 
-  /* SECTION */
-  .section { padding: 0 20px; }
-  .section-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 20px;
-    margin-bottom: 16px;
-    color: var(--dark);
-  }
+/* ── SECTION HEADER ── */
+.sec-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.sec-title { font-family:'Playfair Display',serif; font-size:22px; font-style:italic; color:var(--text); }
+.btn-add { display:flex; align-items:center; gap:6px; padding:8px 14px; background:var(--greenDim); border:1px solid rgba(74,222,128,0.25); border-radius:99px; color:var(--green); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+.btn-add:active { transform:scale(0.96); }
+.btn-sm { padding:6px 12px; background:var(--card2); border:1px solid var(--border); border-radius:99px; color:var(--text2); font-size:11px; font-weight:500; cursor:pointer; font-family:'Outfit',sans-serif; transition:all 0.2s; }
+.btn-sm:hover { color:var(--text); border-color:var(--text3); }
 
-  /* CALENDAR */
-  .calendar-wrap {
-    background: var(--card-bg);
-    backdrop-filter: blur(12px);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    border: 1px solid rgba(255,255,255,0.6);
-    overflow: hidden;
-    margin-bottom: 20px;
-  }
-  .cal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    background: var(--ocean);
-    color: white;
-  }
-  .cal-header h3 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 17px;
-    font-style: italic;
-  }
-  .cal-nav {
-    background: rgba(255,255,255,0.2);
-    border: none;
-    color: white;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    font-size: 16px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
-  }
-  .cal-nav:hover { background: rgba(255,255,255,0.3); }
-  .cal-grid { padding: 12px; }
-  .cal-weekdays {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    margin-bottom: 4px;
-  }
-  .cal-weekday {
-    text-align: center;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    color: var(--light);
-    text-transform: uppercase;
-    padding: 4px 0;
-  }
-  .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
-  .cal-day {
-    aspect-ratio: 1;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 400;
-    color: var(--dark);
-    position: relative;
-    transition: all 0.15s;
-    gap: 2px;
-  }
-  .cal-day:hover { background: var(--sand-dark); }
-  .cal-day.empty { cursor: default; }
-  .cal-day.today { font-weight: 700; color: var(--ocean); }
-  .cal-day.today::after {
-    content: '';
-    position: absolute;
-    bottom: 4px;
-    width: 4px; height: 4px;
-    border-radius: 50%;
-    background: var(--ocean);
-  }
-  .cal-day.occupied {
-    background: linear-gradient(135deg, rgba(46,125,82,0.15), rgba(46,125,82,0.25));
-    border: 1.5px solid rgba(46,125,82,0.4);
-    color: var(--palm);
-    font-weight: 600;
-  }
-  .cal-day.occupied:hover { background: rgba(46,125,82,0.3); }
-  .cal-day .dot {
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    background: var(--palm);
-    flex-shrink: 0;
-  }
+/* ── CARDS ── */
+.card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px; margin-bottom:12px; }
+.card-clickable { cursor:pointer; transition:all 0.15s; }
+.card-clickable:active { transform:scale(0.98); background:var(--card2); }
 
-  /* BOOKING CARD */
-  .booking-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(12px);
-    border-radius: var(--radius-sm);
-    padding: 16px;
-    box-shadow: var(--shadow);
-    border: 1px solid rgba(255,255,255,0.6);
-    margin-bottom: 12px;
-    display: flex;
-    gap: 14px;
-    align-items: flex-start;
-    cursor: pointer;
-    transition: transform 0.15s;
-  }
-  .booking-card:active { transform: scale(0.98); }
-  .booking-icon {
-    width: 44px; height: 44px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--palm), var(--palm-light));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    flex-shrink: 0;
-  }
-  .booking-info { flex: 1; }
-  .booking-guest { font-weight: 600; font-size: 15px; margin-bottom: 3px; }
-  .booking-dates { font-size: 12px; color: var(--light); margin-bottom: 5px; }
-  .booking-tags { display: flex; gap: 6px; flex-wrap: wrap; }
-  .booking-tag {
-    font-size: 10px;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 50px;
-    background: var(--sand-dark);
-    color: var(--mid);
-  }
-  .booking-amount {
-    font-family: 'DM Serif Display', serif;
-    font-size: 18px;
-    color: var(--palm);
-    white-space: nowrap;
-  }
+/* ── PROPERTY CARD ── */
+.prop-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:12px; cursor:pointer; transition:all 0.15s; }
+.prop-card:active { transform:scale(0.98); }
+.prop-header { display:flex; align-items:center; gap:14px; margin-bottom:14px; }
+.prop-icon { width:44px; height:44px; border-radius:12px; background:var(--greenDim); border:1px solid rgba(74,222,128,0.2); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.prop-name { font-weight:600; font-size:16px; color:var(--text); }
+.prop-loc { font-size:12px; color:var(--text2); margin-top:2px; }
+.prop-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+.prop-stat { background:var(--bg3); border-radius:8px; padding:10px 8px; text-align:center; }
+.prop-stat .val { font-family:'Playfair Display',serif; font-size:15px; font-weight:700; }
+.prop-stat .lbl { font-size:9px; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
+.prop-stat .val.inc { color:var(--green); }
+.prop-stat .val.exp { color:var(--red); }
+.prop-stat .val.net { color:var(--blue); }
 
-  /* EXPENSE ITEMS */
-  .expense-item {
-    background: var(--card-bg);
-    backdrop-filter: blur(12px);
-    border-radius: var(--radius-sm);
-    padding: 14px 16px;
-    box-shadow: var(--shadow);
-    border: 1px solid rgba(255,255,255,0.6);
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    cursor: pointer;
-    transition: transform 0.15s;
-  }
-  .expense-item:active { transform: scale(0.98); }
-  .expense-icon {
-    width: 40px; height: 40px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 19px;
-    flex-shrink: 0;
-  }
-  .expense-icon.utilities { background: linear-gradient(135deg, #FFB347, #FFCC80); }
-  .expense-icon.cleaning { background: linear-gradient(135deg, #81D4FA, #B3E5FC); }
-  .expense-icon.pool { background: linear-gradient(135deg, #26C6DA, #80DEEA); }
-  .expense-icon.internet { background: linear-gradient(135deg, #CE93D8, #E1BEE7); }
-  .expense-icon.maintenance { background: linear-gradient(135deg, #A5D6A7, #C8E6C9); }
-  .expense-icon.other { background: linear-gradient(135deg, #FFAB91, #FFCCBC); }
-  .expense-info { flex: 1; }
-  .expense-name { font-weight: 500; font-size: 14px; margin-bottom: 2px; }
-  .expense-meta { font-size: 11px; color: var(--light); }
-  .expense-amount {
-    font-family: 'DM Serif Display', serif;
-    font-size: 16px;
-    color: var(--coral);
-    white-space: nowrap;
-  }
-  .freq-badge {
-    font-size: 9px;
-    font-weight: 700;
-    padding: 2px 7px;
-    border-radius: 50px;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
-  .freq-badge.mensual { background: #E8F5E9; color: var(--palm); }
-  .freq-badge.semanal { background: #E3F2FD; color: #1565C0; }
-  .freq-badge.diario { background: #FFF3E0; color: var(--gold); }
-  .freq-badge.unico { background: #F3E5F5; color: #7B1FA2; }
+/* ── SUMMARY STRIP ── */
+.summary-strip { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px; }
+.sum-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px 12px; }
+.sum-card .lbl { font-size:9px; color:var(--text3); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:6px; }
+.sum-card .val { font-family:'Playfair Display',serif; font-size:18px; }
+.sum-card .val.inc { color:var(--green); }
+.sum-card .val.exp { color:var(--red); }
+.sum-card .val.net { color:var(--blue); }
 
-  /* REPORT */
-  .report-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(12px);
-    border-radius: var(--radius);
-    padding: 20px;
-    box-shadow: var(--shadow);
-    border: 1px solid rgba(255,255,255,0.6);
-    margin-bottom: 16px;
-  }
-  .report-title {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--light);
-    margin-bottom: 16px;
-  }
-  .report-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--sand-dark);
-  }
-  .report-row:last-child { border-bottom: none; }
-  .report-row .rlabel { font-size: 14px; color: var(--mid); display: flex; align-items: center; gap: 8px; }
-  .report-row .rval { font-family: 'DM Serif Display', serif; font-size: 17px; }
-  .report-row .rval.green { color: var(--palm); }
-  .report-row .rval.red { color: var(--coral); }
-  .report-row .rval.blue { color: var(--ocean); }
-  .report-row.total { margin-top: 4px; }
-  .report-row.total .rlabel { font-weight: 600; color: var(--dark); font-size: 15px; }
-  .report-row.total .rval { font-size: 22px; }
-  .bar-wrap { margin-top: 20px; }
-  .bar-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--light); margin-bottom: 6px; }
-  .bar-track { height: 8px; background: var(--sand-dark); border-radius: 99px; overflow: hidden; margin-bottom: 10px; }
-  .bar-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
-  .bar-fill.income { background: linear-gradient(90deg, var(--palm), var(--palm-light)); }
-  .bar-fill.expense { background: linear-gradient(90deg, var(--coral), var(--coral-light)); }
+/* ── CALENDAR ── */
+.cal-wrap { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:16px; }
+.cal-hdr { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; background:var(--greenDim2); border-bottom:1px solid var(--border); }
+.cal-hdr h3 { font-family:'Playfair Display',serif; font-size:16px; font-style:italic; color:var(--text); }
+.cal-nav-btn { width:30px; height:30px; border-radius:50%; border:1px solid var(--border); background:var(--card2); color:var(--text2); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.cal-grid { padding:12px; }
+.cal-wdays { display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:6px; }
+.cal-wday { text-align:center; font-size:9px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:1px; padding:4px 0; }
+.cal-days { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+.cal-day { aspect-ratio:1; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; font-size:12px; color:var(--text2); position:relative; transition:all 0.15s; gap:2px; }
+.cal-day:hover { background:var(--card2); }
+.cal-day.empty { cursor:default; }
+.cal-day.today { color:var(--green); font-weight:700; }
+.cal-day.today::after { content:''; position:absolute; bottom:3px; width:4px; height:4px; border-radius:50%; background:var(--green); }
+.cal-day.occupied { background:var(--greenDim); border:1px solid rgba(74,222,128,0.3); color:var(--green); font-weight:600; }
+.cal-day .cdot { width:4px; height:4px; border-radius:50%; background:var(--green); flex-shrink:0; }
+.occ-bar { display:flex; align-items:center; justify-content:space-evenly; padding:12px; border-top:1px solid var(--border); }
+.occ-item { text-align:center; }
+.occ-item .ov { font-family:'Playfair Display',serif; font-size:20px; color:var(--green); }
+.occ-item .ol { font-size:9px; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
+.occ-div { width:1px; height:30px; background:var(--border); }
 
-  /* OCCUPANCY BADGE */
-  .occ-badge {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    padding: 16px;
-    background: linear-gradient(135deg, var(--ocean), var(--ocean-light));
-    border-radius: var(--radius-sm);
-    color: white;
-    margin-bottom: 16px;
-  }
-  .occ-stat { text-align: center; }
-  .occ-stat .num { font-family: 'DM Serif Display', serif; font-size: 26px; line-height: 1; }
-  .occ-stat .lbl { font-size: 10px; opacity: 0.7; letter-spacing: 1px; text-transform: uppercase; margin-top: 3px; }
-  .occ-divider { width: 1px; height: 40px; background: rgba(255,255,255,0.3); }
+/* ── LIST ITEMS ── */
+.list-item { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px 16px; margin-bottom:8px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:all 0.15s; }
+.list-item:active { transform:scale(0.98); background:var(--card2); }
+.li-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; }
+.li-icon.inc { background:var(--greenDim); }
+.li-icon.exp { background:var(--redDim); }
+.li-info { flex:1; }
+.li-name { font-weight:500; font-size:14px; color:var(--text); }
+.li-meta { font-size:11px; color:var(--text3); margin-top:2px; }
+.li-amt { font-family:'Playfair Display',serif; font-size:16px; white-space:nowrap; }
+.li-amt.inc { color:var(--green); }
+.li-amt.exp { color:var(--red); }
+.freq-tag { display:inline-block; font-size:9px; font-weight:700; padding:2px 6px; border-radius:99px; text-transform:uppercase; letter-spacing:0.5px; margin-left:6px; }
+.freq-tag.mensual { background:var(--greenDim); color:var(--green); }
+.freq-tag.semanal { background:var(--blueDim); color:var(--blue); }
+.freq-tag.diario { background:var(--goldDim); color:var(--gold); }
+.freq-tag.unico { background:rgba(168,85,247,0.12); color:#A855F7; }
 
-  /* FAB */
-  .fab {
-    position: fixed;
-    bottom: 90px;
-    right: 20px;
-    width: 56px; height: 56px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--coral), var(--coral-light));
-    color: white;
-    font-size: 26px;
-    border: none;
-    box-shadow: 0 6px 20px rgba(232,98,74,0.4);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    z-index: 100;
-  }
-  .fab:active { transform: scale(0.93); }
+/* ── REPORT ── */
+.report-row { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border); }
+.report-row:last-child { border-bottom:none; }
+.report-row .rlab { font-size:13px; color:var(--text2); }
+.report-row .rval { font-family:'Playfair Display',serif; font-size:16px; }
+.report-row .rval.green { color:var(--green); }
+.report-row .rval.red { color:var(--red); }
+.report-row .rval.blue { color:var(--blue); }
+.bar-row { margin-top:16px; }
+.bar-lbl { display:flex; justify-content:space-between; font-size:10px; color:var(--text3); margin-bottom:6px; }
+.bar-track { height:6px; background:var(--bg3); border-radius:99px; overflow:hidden; margin-bottom:10px; }
+.bar-fill { height:100%; border-radius:99px; transition:width 0.5s ease; }
+.bar-fill.inc { background:var(--green); }
+.bar-fill.exp { background:var(--red); }
 
-  /* BOTTOM NAV */
-  .bottom-nav {
-    position: fixed;
-    bottom: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 430px;
-    background: rgba(255,255,255,0.92);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(26,92,107,0.1);
-    display: flex;
-    z-index: 200;
-  }
-  .bn-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 10px 0 14px;
-    cursor: pointer;
-    gap: 3px;
-    transition: color 0.2s;
-    color: var(--light);
-    border: none;
-    background: none;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .bn-item.active { color: var(--ocean); }
-  .bn-icon { font-size: 22px; }
-  .bn-label { font-size: 10px; font-weight: 500; letter-spacing: 0.5px; }
+/* ── USERS ── */
+.user-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px 16px; margin-bottom:8px; display:flex; align-items:center; gap:12px; }
+.user-avatar { width:38px; height:38px; border-radius:50%; background:var(--greenDim); border:1px solid rgba(74,222,128,0.2); display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:600; color:var(--green); flex-shrink:0; }
+.user-info { flex:1; }
+.user-name { font-weight:500; font-size:14px; }
+.user-email { font-size:11px; color:var(--text3); margin-top:2px; }
+.user-role { font-size:9px; font-weight:700; padding:2px 8px; border-radius:99px; text-transform:uppercase; }
+.user-role.admin { background:var(--goldDim); color:var(--gold); }
+.user-role.viewer { background:var(--greenDim); color:var(--green); }
 
-  /* MODAL */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(28,28,30,0.5);
-    backdrop-filter: blur(4px);
-    z-index: 500;
-    display: flex;
-    align-items: flex-end;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s;
-  }
-  .modal-overlay.open { opacity: 1; pointer-events: all; }
-  .modal {
-    width: 100%;
-    max-width: 430px;
-    margin: 0 auto;
-    background: var(--white);
-    border-radius: 24px 24px 0 0;
-    padding: 8px 20px 40px;
-    transform: translateY(30px);
-    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-  .modal-overlay.open .modal { transform: translateY(0); }
-  .modal-handle {
-    width: 40px; height: 4px;
-    background: #DDD;
-    border-radius: 99px;
-    margin: 10px auto 20px;
-  }
-  .modal-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 22px;
-    margin-bottom: 20px;
-    color: var(--dark);
-  }
-  .form-group { margin-bottom: 16px; }
-  .form-label {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    color: var(--light);
-    margin-bottom: 6px;
-    display: block;
-  }
-  .form-input {
-    width: 100%;
-    padding: 13px 16px;
-    border: 1.5px solid var(--sand-dark);
-    border-radius: var(--radius-sm);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    color: var(--dark);
-    background: var(--sand);
-    outline: none;
-    transition: border-color 0.2s;
-    appearance: none;
-  }
-  .form-input:focus { border-color: var(--ocean); background: white; }
-  .form-row { display: flex; gap: 10px; }
-  .form-row .form-group { flex: 1; }
-  .type-toggle { display: flex; gap: 8px; }
-  .type-btn {
-    flex: 1;
-    padding: 11px;
-    border-radius: var(--radius-sm);
-    border: 1.5px solid var(--sand-dark);
-    background: var(--sand);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    color: var(--mid);
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-  }
-  .type-btn.income.active { background: rgba(46,125,82,0.12); border-color: var(--palm); color: var(--palm); }
-  .type-btn.expense.active { background: rgba(232,98,74,0.12); border-color: var(--coral); color: var(--coral); }
-  .btn-primary {
-    width: 100%;
-    padding: 15px;
-    border: none;
-    border-radius: var(--radius-sm);
-    background: linear-gradient(135deg, var(--ocean), var(--ocean-light));
-    color: white;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 16px rgba(26,92,107,0.3);
-    transition: all 0.2s;
-    margin-top: 8px;
-  }
-  .btn-primary:active { transform: scale(0.98); }
-  .btn-delete {
-    width: 100%;
-    padding: 13px;
-    border: 1.5px solid rgba(232,98,74,0.3);
-    border-radius: var(--radius-sm);
-    background: transparent;
-    color: var(--coral);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: all 0.2s;
-  }
-  .btn-delete:active { background: rgba(232,98,74,0.08); }
+/* ── MODAL ── */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); z-index:500; display:flex; align-items:flex-end; opacity:0; pointer-events:none; transition:opacity 0.25s; }
+.modal-overlay.open { opacity:1; pointer-events:all; }
+.modal { width:100%; max-width:480px; margin:0 auto; background:var(--card); border-radius:24px 24px 0 0; padding:8px 20px 40px; transform:translateY(40px); transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1); max-height:92vh; overflow-y:auto; }
+.modal-overlay.open .modal { transform:translateY(0); }
+.modal-handle { width:36px; height:4px; background:var(--border); border-radius:99px; margin:12px auto 20px; }
+.modal-title { font-family:'Playfair Display',serif; font-size:20px; margin-bottom:20px; font-style:italic; }
+.form-grp { margin-bottom:14px; }
+.form-lbl { font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--text3); margin-bottom:6px; display:block; }
+.form-inp { width:100%; padding:12px 14px; background:var(--bg3); border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:'Outfit',sans-serif; font-size:14px; color:var(--text); outline:none; transition:border-color 0.2s; appearance:none; }
+.form-inp:focus { border-color:var(--green); }
+.form-row { display:flex; gap:10px; }
+.form-row .form-grp { flex:1; }
+.btn-save { width:100%; padding:14px; border:none; border-radius:var(--radius-sm); background:var(--green); color:#0A0F0D; font-family:'Outfit',sans-serif; font-size:15px; font-weight:700; cursor:pointer; transition:all 0.2s; margin-top:12px; }
+.btn-save:active { transform:scale(0.98); }
+.btn-save:disabled { opacity:0.5; }
+.btn-danger { width:100%; padding:12px; border:1px solid rgba(248,113,113,0.3); border-radius:var(--radius-sm); background:transparent; color:var(--red); font-family:'Outfit',sans-serif; font-size:13px; font-weight:500; cursor:pointer; margin-top:10px; transition:all 0.2s; }
+.btn-danger:active { background:var(--redDim); }
 
-  /* Detail modal */
-  .detail-header {
-    background: linear-gradient(135deg, var(--palm), var(--palm-light));
-    margin: -1px -20px 20px;
-    padding: 24px 20px;
-    color: white;
-    border-radius: 16px 16px 0 0;
-  }
-  .detail-header.expense-header { background: linear-gradient(135deg, var(--coral), var(--coral-light)); }
-  .detail-header h2 { font-family: 'DM Serif Display', serif; font-size: 24px; margin-bottom: 4px; }
-  .detail-header .amount { font-family: 'DM Serif Display', serif; font-size: 32px; opacity: 0.9; }
-  .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--sand-dark); }
-  .detail-row:last-of-type { border-bottom: none; }
-  .detail-row .dk { font-size: 12px; color: var(--light); font-weight: 500; text-transform: uppercase; letter-spacing: 0.8px; }
-  .detail-row .dv { font-size: 14px; font-weight: 500; color: var(--dark); text-align: right; }
+/* ── DETAIL HEADER ── */
+.detail-hdr { background:var(--greenDim2); border:1px solid rgba(74,222,128,0.15); margin:-1px -20px 20px; padding:22px 20px; border-radius:16px 16px 0 0; }
+.detail-hdr.exp-hdr { background:var(--redDim); border-color:rgba(248,113,113,0.15); }
+.detail-hdr h2 { font-family:'Playfair Display',serif; font-size:22px; margin-bottom:4px; }
+.detail-hdr .damt { font-family:'Playfair Display',serif; font-size:30px; }
+.detail-hdr .damt.inc { color:var(--green); }
+.detail-hdr .damt.exp { color:var(--red); }
+.detail-drow { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border); }
+.detail-drow:last-of-type { border-bottom:none; }
+.detail-drow .dk { font-size:11px; color:var(--text3); font-weight:500; text-transform:uppercase; letter-spacing:0.8px; }
+.detail-drow .dv { font-size:13px; font-weight:500; color:var(--text); }
 
-  /* Empty state */
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--light);
-  }
-  .empty-state .emoji { font-size: 48px; margin-bottom: 12px; }
-  .empty-state p { font-size: 14px; line-height: 1.5; }
+/* ── DROPDOWN MENU ── */
+.dropdown { position:absolute; top:50px; right:16px; background:var(--card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:6px; z-index:200; min-width:160px; box-shadow:var(--shadow); display:none; }
+.dropdown.open { display:block; }
+.drop-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; cursor:pointer; font-size:13px; color:var(--text2); transition:all 0.15s; }
+.drop-item:hover { background:var(--card2); color:var(--text); }
+.drop-item.danger { color:var(--red); }
 
-  /* Month selector */
-  .month-selector {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    margin-bottom: 16px;
-  }
-  .month-selector span {
-    font-family: 'DM Serif Display', serif;
-    font-size: 18px;
-    color: var(--dark);
-    font-style: italic;
-  }
-  .month-btn {
-    width: 34px; height: 34px;
-    border-radius: 50%;
-    border: 1.5px solid var(--sand-dark);
-    background: var(--card-bg);
-    font-size: 16px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--ocean);
-    transition: all 0.2s;
-  }
-  .month-btn:active { background: var(--sand-dark); }
+/* ── PROP SELECTOR ── */
+.prop-selector { display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; padding-bottom:4px; margin-bottom:16px; }
+.prop-selector::-webkit-scrollbar { display:none; }
+.prop-pill { flex-shrink:0; padding:7px 14px; border-radius:99px; font-size:12px; font-weight:500; cursor:pointer; border:1px solid var(--border); background:var(--card); color:var(--text2); transition:all 0.2s; }
+.prop-pill.active { background:var(--greenDim); border-color:rgba(74,222,128,0.3); color:var(--green); }
 
-  /* PILL FILTERS */
-  .pill-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .pill-row::-webkit-scrollbar { display: none; }
-  .pill {
-    flex-shrink: 0;
-    padding: 7px 14px;
-    border-radius: 50px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    border: 1.5px solid var(--sand-dark);
-    background: rgba(255,255,255,0.7);
-    color: var(--mid);
-    transition: all 0.2s;
-  }
-  .pill.active {
-    background: var(--ocean);
-    color: white;
-    border-color: var(--ocean);
-  }
+/* ── FILTERS ── */
+.filter-row { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; margin-bottom:16px; }
+.filter-row::-webkit-scrollbar { display:none; }
+.filter-pill { flex-shrink:0; padding:6px 12px; border-radius:99px; font-size:11px; font-weight:500; cursor:pointer; border:1px solid var(--border); background:var(--bg3); color:var(--text3); transition:all 0.2s; }
+.filter-pill.active { background:var(--greenDim); border-color:rgba(74,222,128,0.3); color:var(--green); }
 
-  .hidden { display: none !important; }
-  .page { display: none; }
-  .page.active { display: block; }
+/* ── EMPTY STATE ── */
+.empty { text-align:center; padding:48px 20px; }
+.empty-icon { font-size:40px; margin-bottom:12px; opacity:0.5; }
+.empty-text { font-size:14px; color:var(--text3); line-height:1.6; }
 
-  /* Toast */
-  .toast {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%) translateY(-80px);
-    background: var(--dark);
-    color: white;
-    padding: 12px 20px;
-    border-radius: 50px;
-    font-size: 14px;
-    font-weight: 500;
-    z-index: 1000;
-    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
-    white-space: nowrap;
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); }
+/* ── TOAST ── */
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px); background:var(--card2); border:1px solid var(--border); color:var(--text); padding:11px 20px; border-radius:99px; font-size:13px; font-weight:500; z-index:1000; transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1); white-space:nowrap; box-shadow:var(--shadow); }
+.toast.show { transform:translateX(-50%) translateY(0); }
+
+/* ── MONTH NAV ── */
+.month-nav { display:flex; align-items:center; justify-content:space-between; padding:0 2px; margin-bottom:16px; }
+.month-nav span { font-family:'Playfair Display',serif; font-size:17px; font-style:italic; }
+.month-nav-btn { width:32px; height:32px; border-radius:50%; border:1px solid var(--border); background:var(--card); color:var(--text2); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+/* ── OVERVIEW ── */
+.global-stat { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:12px; }
+.global-stat-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.global-stat-title { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1.5px; color:var(--text3); }
+.global-big { font-family:'Playfair Display',serif; font-size:32px; }
+.global-big.inc { color:var(--green); }
+.global-big.exp { color:var(--red); }
+.global-big.net { color:var(--blue); }
+
+/* ── LOADING SPINNER ── */
+.spinner { width:20px; height:20px; border:2px solid var(--border); border-top-color:var(--green); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.loading-wrap { padding:40px; text-align:center; }
+
+/* RESPONSIVE */
+@media(min-width:600px) {
+  .summary-strip { grid-template-columns:repeat(3,1fr); }
+  .prop-stats { grid-template-columns:repeat(3,1fr); }
+}
 </style>
 </head>
 <body>
 
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-logo">VacaTrack</div>
+  <div class="loader-dot"></div>
+</div>
+
+<!-- AUTH -->
+<div id="auth-screen" style="display:none">
+  <div class="auth-card">
+    <div class="auth-logo">VacaTrack</div>
+    <div class="auth-sub">Gestión de propiedades vacacionales</div>
+    <label class="auth-label">Correo electrónico</label>
+    <input class="auth-input" id="auth-email" type="email" placeholder="correo@ejemplo.com" autocomplete="email">
+    <label class="auth-label">Contraseña</label>
+    <input class="auth-input" id="auth-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+    <button class="auth-btn" id="auth-login-btn" onclick="doLogin()">Iniciar sesión</button>
+    <div class="auth-err" id="auth-err"></div>
+  </div>
+</div>
+
+<!-- APP -->
 <div id="app">
-  <div class="header">
-    <div class="header-tag">🏖️ Mi Propiedad</div>
-    <h1 id="prop-name">Casa del Mar<span id="header-month-year"></span></h1>
-  </div>
-
-  <div class="summary-row">
-    <div class="summary-card">
-      <div class="label">📈 Ingresos</div>
-      <div class="amount income" id="sum-income">$0</div>
-    </div>
-    <div class="summary-card">
-      <div class="label">📉 Gastos</div>
-      <div class="amount expense" id="sum-expenses">$0</div>
-    </div>
-    <div class="summary-card">
-      <div class="label">💰 Neto</div>
-      <div class="amount profit" id="sum-profit">$0</div>
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-logo">VacaTrack</div>
+    <div class="topbar-right">
+      <div class="currency-toggle">
+        <button class="currency-btn active" id="cur-usd" onclick="setCurrency('USD')">$ USD</button>
+        <button class="currency-btn" id="cur-crc" onclick="setCurrency('CRC')">₡ CRC</button>
+      </div>
+      <div class="avatar-btn" id="avatar-btn" onclick="toggleDropdown()">
+        <span id="avatar-initials">?</span>
+      </div>
+      <div class="dropdown" id="dropdown">
+        <div class="drop-item" onclick="showView('settings');closeDropdown()">⚙️ Configuración</div>
+        <div class="drop-item danger" onclick="doLogout()">↩ Cerrar sesión</div>
+      </div>
     </div>
   </div>
 
-  <div class="nav-tabs">
-    <div class="nav-tab active" data-page="calendar">📅 Calendario</div>
-    <div class="nav-tab" data-page="reservations">🏠 Reservas</div>
-    <div class="nav-tab" data-page="expenses">💸 Gastos</div>
-    <div class="nav-tab" data-page="report">📊 Reporte</div>
+  <!-- NAV -->
+  <div class="nav-tabs" id="nav-tabs">
+    <div class="nav-tab active" data-view="overview" onclick="showView('overview')">📊 General</div>
+    <div class="nav-tab" data-view="properties" onclick="showView('properties')">🏠 Propiedades</div>
+    <div class="nav-tab" data-view="reservations" onclick="showView('reservations')">📅 Reservas</div>
+    <div class="nav-tab" data-view="expenses" onclick="showView('expenses')">💸 Gastos</div>
+    <div class="nav-tab" data-view="report" onclick="showView('report')">📈 Reporte</div>
+    <div class="nav-tab" id="tab-admin" data-view="admin" onclick="showView('admin')" style="display:none">👤 Admin</div>
   </div>
 
-  <!-- CALENDAR PAGE -->
-  <div class="page active" id="page-calendar">
-    <div class="section">
-      <div class="calendar-wrap">
-        <div class="cal-header">
-          <button class="cal-nav" id="cal-prev">‹</button>
-          <h3 id="cal-month-title"></h3>
-          <button class="cal-nav" id="cal-next">›</button>
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- OVERVIEW -->
+    <div class="view active" id="view-overview">
+      <div class="sec-hdr">
+        <div class="sec-title">Vista general</div>
+        <div class="month-nav" style="margin:0;gap:10px">
+          <button class="month-nav-btn" onclick="changeGlobalMonth(-1)">‹</button>
+          <span id="global-month-lbl" style="font-size:13px"></span>
+          <button class="month-nav-btn" onclick="changeGlobalMonth(1)">›</button>
         </div>
-        <div class="cal-grid">
-          <div class="cal-weekdays">
-            <div class="cal-weekday">Do</div>
-            <div class="cal-weekday">Lu</div>
-            <div class="cal-weekday">Ma</div>
-            <div class="cal-weekday">Mi</div>
-            <div class="cal-weekday">Ju</div>
-            <div class="cal-weekday">Vi</div>
-            <div class="cal-weekday">Sá</div>
+      </div>
+      <div id="overview-content"><div class="loading-wrap"><div class="spinner"></div></div></div>
+    </div>
+
+    <!-- PROPERTIES -->
+    <div class="view" id="view-properties">
+      <div class="sec-hdr">
+        <div class="sec-title">Propiedades</div>
+        <div id="btn-add-prop" class="btn-add" onclick="openAddProp()" style="display:none">＋ Agregar</div>
+      </div>
+      <div id="props-list"><div class="loading-wrap"><div class="spinner"></div></div></div>
+    </div>
+
+    <!-- RESERVATIONS -->
+    <div class="view" id="view-reservations">
+      <div class="sec-hdr" style="flex-direction:column;align-items:flex-start;gap:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+          <div class="sec-title">Reservas</div>
+          <div class="btn-add" onclick="openAddReservation()">＋ Agregar</div>
+        </div>
+        <div class="prop-selector" id="res-prop-selector"></div>
+      </div>
+      <div class="month-nav">
+        <button class="month-nav-btn" onclick="changeResMonth(-1)">‹</button>
+        <span id="res-month-lbl"></span>
+        <button class="month-nav-btn" onclick="changeResMonth(1)">›</button>
+      </div>
+      <div id="cal-container"></div>
+      <div id="res-list"></div>
+    </div>
+
+    <!-- EXPENSES -->
+    <div class="view" id="view-expenses">
+      <div class="sec-hdr" style="flex-direction:column;align-items:flex-start;gap:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+          <div class="sec-title">Gastos</div>
+          <div class="btn-add" onclick="openAddExpense()">＋ Agregar</div>
+        </div>
+        <div class="prop-selector" id="exp-prop-selector"></div>
+      </div>
+      <div class="filter-row" id="exp-filter-row">
+        <div class="filter-pill active" data-f="all" onclick="setExpFilter('all',this)">Todos</div>
+        <div class="filter-pill" data-f="mensual" onclick="setExpFilter('mensual',this)">Mensual</div>
+        <div class="filter-pill" data-f="semanal" onclick="setExpFilter('semanal',this)">Semanal</div>
+        <div class="filter-pill" data-f="diario" onclick="setExpFilter('diario',this)">Diario</div>
+        <div class="filter-pill" data-f="unico" onclick="setExpFilter('unico',this)">Único</div>
+      </div>
+      <div id="exp-list"></div>
+    </div>
+
+    <!-- REPORT -->
+    <div class="view" id="view-report">
+      <div class="sec-hdr" style="flex-direction:column;align-items:flex-start;gap:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+          <div class="sec-title">Reporte</div>
+          <div class="month-nav" style="margin:0;gap:8px">
+            <button class="month-nav-btn" onclick="changeRptMonth(-1)">‹</button>
+            <span id="rpt-month-lbl" style="font-size:13px"></span>
+            <button class="month-nav-btn" onclick="changeRptMonth(1)">›</button>
           </div>
-          <div class="cal-days" id="cal-days"></div>
         </div>
+        <div class="prop-selector" id="rpt-prop-selector"></div>
       </div>
+      <div id="rpt-content"></div>
+    </div>
 
-      <div id="cal-day-detail"></div>
+    <!-- ADMIN -->
+    <div class="view" id="view-admin">
+      <div class="sec-hdr">
+        <div class="sec-title">Administración</div>
+        <div class="btn-add" onclick="openAddUser()">＋ Usuario</div>
+      </div>
+      <div id="users-list"><div class="loading-wrap"><div class="spinner"></div></div></div>
+    </div>
 
-      <div class="occ-badge" id="occ-badge">
-        <div class="occ-stat">
-          <div class="num" id="occ-days">0</div>
-          <div class="lbl">Días ocupados</div>
-        </div>
-        <div class="occ-divider"></div>
-        <div class="occ-stat">
-          <div class="num" id="occ-pct">0%</div>
-          <div class="lbl">Ocupación</div>
-        </div>
-        <div class="occ-divider"></div>
-        <div class="occ-stat">
-          <div class="num" id="occ-res">0</div>
-          <div class="lbl">Reservas</div>
+    <!-- SETTINGS -->
+    <div class="view" id="view-settings">
+      <div class="sec-hdr"><div class="sec-title">Configuración</div></div>
+      <div class="card" style="margin-bottom:12px">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px">Mi cuenta</div>
+        <div style="font-size:14px;color:var(--text2)" id="settings-email"></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px" id="settings-role"></div>
+      </div>
+      <div class="card">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px">Moneda preferida</div>
+        <div style="display:flex;gap:10px">
+          <button class="btn-sm" onclick="setCurrency('USD')" style="flex:1">$ Dólares (USD)</button>
+          <button class="btn-sm" onclick="setCurrency('CRC')" style="flex:1">₡ Colones (CRC)</button>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- RESERVATIONS PAGE -->
-  <div class="page" id="page-reservations">
-    <div class="section">
-      <div class="month-selector">
-        <button class="month-btn" id="res-prev">‹</button>
-        <span id="res-month-title"></span>
-        <button class="month-btn" id="res-next">›</button>
-      </div>
-      <div id="reservations-list"></div>
-    </div>
-  </div>
+  </div><!-- /main -->
+</div><!-- /app -->
 
-  <!-- EXPENSES PAGE -->
-  <div class="page" id="page-expenses">
-    <div class="section">
-      <div class="pill-row" id="expense-filters">
-        <div class="pill active" data-filter="all">Todos</div>
-        <div class="pill" data-filter="mensual">Mensual</div>
-        <div class="pill" data-filter="semanal">Semanal</div>
-        <div class="pill" data-filter="diario">Diario</div>
-        <div class="pill" data-filter="unico">Único</div>
-      </div>
-      <div id="expenses-list"></div>
-    </div>
-  </div>
+<!-- MODALS -->
 
-  <!-- REPORT PAGE -->
-  <div class="page" id="page-report">
-    <div class="section">
-      <div class="month-selector">
-        <button class="month-btn" id="rpt-prev">‹</button>
-        <span id="rpt-month-title"></span>
-        <button class="month-btn" id="rpt-next">›</button>
-      </div>
-
-      <div class="report-card">
-        <div class="report-title">Resumen del mes</div>
-        <div class="report-row">
-          <div class="rlabel">🏠 Total ingresos</div>
-          <div class="rval green" id="rpt-income">$0</div>
-        </div>
-        <div class="report-row">
-          <div class="rlabel">💸 Total gastos</div>
-          <div class="rval red" id="rpt-expenses">$0</div>
-        </div>
-        <div class="report-row total">
-          <div class="rlabel">💰 Ganancia neta</div>
-          <div class="rval blue" id="rpt-profit">$0</div>
-        </div>
-        <div class="bar-wrap">
-          <div class="bar-label">
-            <span>Ingresos</span><span id="rpt-bar-income-pct">0%</span>
-          </div>
-          <div class="bar-track"><div class="bar-fill income" id="rpt-bar-income" style="width:0%"></div></div>
-          <div class="bar-label">
-            <span>Gastos</span><span id="rpt-bar-expense-pct">0%</span>
-          </div>
-          <div class="bar-track"><div class="bar-fill expense" id="rpt-bar-expense" style="width:0%"></div></div>
-        </div>
-      </div>
-
-      <div class="report-card">
-        <div class="report-title">Desglose de gastos</div>
-        <div id="expense-breakdown"></div>
-      </div>
-
-      <div class="report-card">
-        <div class="report-title">Ocupación del mes</div>
-        <div class="report-row">
-          <div class="rlabel">📅 Días ocupados</div>
-          <div class="rval blue" id="rpt-occ-days">0</div>
-        </div>
-        <div class="report-row">
-          <div class="rlabel">📊 % Ocupación</div>
-          <div class="rval blue" id="rpt-occ-pct">0%</div>
-        </div>
-        <div class="report-row">
-          <div class="rlabel">🏠 # Reservas</div>
-          <div class="rval blue" id="rpt-res-count">0</div>
-        </div>
-        <div class="report-row">
-          <div class="rlabel">💵 Promedio/noche</div>
-          <div class="rval green" id="rpt-avg-night">$0</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- FAB -->
-<button class="fab" id="fab-btn">+</button>
-
-<!-- BOTTOM NAV -->
-<div class="bottom-nav">
-  <button class="bn-item active" data-page="calendar">
-    <span class="bn-icon">📅</span>
-    <span class="bn-label">Calendario</span>
-  </button>
-  <button class="bn-item" data-page="reservations">
-    <span class="bn-icon">🏠</span>
-    <span class="bn-label">Reservas</span>
-  </button>
-  <button class="bn-item" data-page="expenses">
-    <span class="bn-icon">💸</span>
-    <span class="bn-label">Gastos</span>
-  </button>
-  <button class="bn-item" data-page="report">
-    <span class="bn-icon">📊</span>
-    <span class="bn-label">Reporte</span>
-  </button>
-</div>
-
-<!-- ADD MODAL -->
-<div class="modal-overlay" id="add-modal">
+<!-- Add/Edit Property -->
+<div class="modal-overlay" id="modal-prop">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="add-modal-title">Nueva entrada</div>
-    <div class="type-toggle" id="type-toggle">
-      <button class="type-btn income active" data-type="income">🏠 Reserva</button>
-      <button class="type-btn expense" data-type="expense">💸 Gasto</button>
-    </div>
-    <br>
-
-    <!-- INCOME FORM -->
-    <div id="income-form">
-      <div class="form-group">
-        <label class="form-label">Nombre del huésped</label>
-        <input class="form-input" id="i-guest" type="text" placeholder="Ej. Juan García">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Check-in</label>
-          <input class="form-input" id="i-checkin" type="date">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Check-out</label>
-          <input class="form-input" id="i-checkout" type="date">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Monto total</label>
-          <input class="form-input" id="i-amount" type="number" placeholder="0.00">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Plataforma</label>
-          <select class="form-input" id="i-platform">
-            <option>Airbnb</option>
-            <option>Booking</option>
-            <option>Vrbo</option>
-            <option>Directo</option>
-            <option>Otra</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">N° huéspedes</label>
-        <input class="form-input" id="i-guests" type="number" placeholder="2" min="1">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Notas</label>
-        <input class="form-input" id="i-notes" type="text" placeholder="Información adicional...">
-      </div>
-    </div>
-
-    <!-- EXPENSE FORM -->
-    <div id="expense-form" class="hidden">
-      <div class="form-group">
-        <label class="form-label">Categoría</label>
-        <select class="form-input" id="e-category">
-          <option value="Electricidad">⚡ Electricidad</option>
-          <option value="Agua">💧 Agua</option>
-          <option value="Internet">📶 Internet</option>
-          <option value="Limpieza">🧹 Limpieza</option>
-          <option value="Piscina">🏊 Piscina</option>
-          <option value="Mantenimiento">🔧 Mantenimiento</option>
-          <option value="Gas">🔥 Gas</option>
-          <option value="Jardinería">🌿 Jardinería</option>
-          <option value="Impuestos">📋 Impuestos</option>
-          <option value="Seguro">🛡️ Seguro</option>
-          <option value="Otro">📦 Otro</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Descripción</label>
-        <input class="form-input" id="e-desc" type="text" placeholder="Ej. Factura de luz julio">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Monto</label>
-          <input class="form-input" id="e-amount" type="number" placeholder="0.00">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Frecuencia</label>
-          <select class="form-input" id="e-frequency">
-            <option value="unico">Único</option>
-            <option value="diario">Diario</option>
-            <option value="semanal">Semanal</option>
-            <option value="mensual">Mensual</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Fecha</label>
-        <input class="form-input" id="e-date" type="date">
-      </div>
-    </div>
-
-    <button class="btn-primary" id="save-btn">Guardar</button>
-    <button class="btn-delete hidden" id="cancel-btn" style="border-color:transparent;color:var(--light)">Cancelar</button>
+    <div class="modal-title" id="modal-prop-title">Nueva propiedad</div>
+    <div class="form-grp"><label class="form-lbl">Nombre</label><input class="form-inp" id="prop-name-inp" placeholder="Ej. Casa del Mar"></div>
+    <div class="form-grp"><label class="form-lbl">Ubicación</label><input class="form-inp" id="prop-loc-inp" placeholder="Ej. Guanacaste, Costa Rica"></div>
+    <div class="form-grp"><label class="form-lbl">Emoji / Ícono</label><input class="form-inp" id="prop-icon-inp" placeholder="🏖️" maxlength="2"></div>
+    <button class="btn-save" id="prop-save-btn" onclick="saveProp()">Guardar propiedad</button>
+    <button class="btn-danger" id="prop-del-btn" style="display:none" onclick="deleteProp()">Eliminar propiedad</button>
   </div>
 </div>
 
-<!-- DETAIL MODAL -->
-<div class="modal-overlay" id="detail-modal">
-  <div class="modal" id="detail-modal-content"></div>
+<!-- Add/Edit Reservation -->
+<div class="modal-overlay" id="modal-res">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-res-title">Nueva reserva</div>
+    <div class="form-grp"><label class="form-lbl">Propiedad</label>
+      <select class="form-inp" id="res-prop-sel"></select>
+    </div>
+    <div class="form-grp"><label class="form-lbl">Nombre del huésped</label><input class="form-inp" id="res-guest" placeholder="Ej. Juan García"></div>
+    <div class="form-row">
+      <div class="form-grp"><label class="form-lbl">Check-in</label><input class="form-inp" id="res-checkin" type="date"></div>
+      <div class="form-grp"><label class="form-lbl">Check-out</label><input class="form-inp" id="res-checkout" type="date"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-grp"><label class="form-lbl">Monto</label><input class="form-inp" id="res-amount" type="number" placeholder="0.00"></div>
+      <div class="form-grp"><label class="form-lbl">Plataforma</label>
+        <select class="form-inp" id="res-platform">
+          <option>Airbnb</option><option>Booking</option><option>Vrbo</option><option>Directo</option><option>Otra</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-grp"><label class="form-lbl">Huéspedes</label><input class="form-inp" id="res-guests" type="number" placeholder="2" min="1"></div>
+    </div>
+    <div class="form-grp"><label class="form-lbl">Notas</label><input class="form-inp" id="res-notes" placeholder="Información adicional..."></div>
+    <button class="btn-save" id="res-save-btn" onclick="saveReservation()">Guardar reserva</button>
+    <button class="btn-danger" id="res-del-btn" style="display:none" onclick="deleteReservation()">Eliminar reserva</button>
+  </div>
+</div>
+
+<!-- Add/Edit Expense -->
+<div class="modal-overlay" id="modal-exp">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-exp-title">Nuevo gasto</div>
+    <div class="form-grp"><label class="form-lbl">Propiedad</label>
+      <select class="form-inp" id="exp-prop-sel"></select>
+    </div>
+    <div class="form-grp"><label class="form-lbl">Categoría</label>
+      <select class="form-inp" id="exp-cat">
+        <option value="Electricidad">⚡ Electricidad</option>
+        <option value="Agua">💧 Agua</option>
+        <option value="Internet">📶 Internet</option>
+        <option value="Limpieza">🧹 Limpieza</option>
+        <option value="Piscina">🏊 Piscina</option>
+        <option value="Mantenimiento">🔧 Mantenimiento</option>
+        <option value="Gas">🔥 Gas</option>
+        <option value="Jardinería">🌿 Jardinería</option>
+        <option value="Impuestos">📋 Impuestos</option>
+        <option value="Seguro">🛡️ Seguro</option>
+        <option value="Otro">📦 Otro</option>
+      </select>
+    </div>
+    <div class="form-grp"><label class="form-lbl">Descripción</label><input class="form-inp" id="exp-desc" placeholder="Ej. Factura de luz"></div>
+    <div class="form-row">
+      <div class="form-grp"><label class="form-lbl">Monto</label><input class="form-inp" id="exp-amount" type="number" placeholder="0.00"></div>
+      <div class="form-grp"><label class="form-lbl">Frecuencia</label>
+        <select class="form-inp" id="exp-freq">
+          <option value="unico">Único</option>
+          <option value="diario">Diario</option>
+          <option value="semanal">Semanal</option>
+          <option value="mensual">Mensual</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grp"><label class="form-lbl">Fecha</label><input class="form-inp" id="exp-date" type="date"></div>
+    <button class="btn-save" id="exp-save-btn" onclick="saveExpense()">Guardar gasto</button>
+    <button class="btn-danger" id="exp-del-btn" style="display:none" onclick="deleteExpense()">Eliminar gasto</button>
+  </div>
+</div>
+
+<!-- Add User -->
+<div class="modal-overlay" id="modal-user">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nuevo usuario</div>
+    <div class="form-grp"><label class="form-lbl">Nombre</label><input class="form-inp" id="user-name" placeholder="Nombre completo"></div>
+    <div class="form-grp"><label class="form-lbl">Correo</label><input class="form-inp" id="user-email" type="email" placeholder="correo@ejemplo.com"></div>
+    <div class="form-grp"><label class="form-lbl">Contraseña temporal</label><input class="form-inp" id="user-pass" type="password" placeholder="mínimo 6 caracteres"></div>
+    <div class="form-grp"><label class="form-lbl">Rol</label>
+      <select class="form-inp" id="user-role">
+        <option value="viewer">Viewer (solo lectura)</option>
+        <option value="admin">Admin (acceso total)</option>
+      </select>
+    </div>
+    <button class="btn-save" id="user-save-btn" onclick="saveUser()">Crear usuario</button>
+  </div>
+</div>
+
+<!-- Detail Reservation -->
+<div class="modal-overlay" id="modal-res-detail">
+  <div class="modal" id="modal-res-detail-content"></div>
+</div>
+
+<!-- Detail Expense -->
+<div class="modal-overlay" id="modal-exp-detail">
+  <div class="modal" id="modal-exp-detail-content"></div>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<script>
-// ===== STATE =====
-let state = {
-  reservations: [],
-  expenses: [],
-  viewMonth: new Date().getMonth(),
-  viewYear: new Date().getFullYear(),
-  calMonth: new Date().getMonth(),
-  calYear: new Date().getFullYear(),
-  rptMonth: new Date().getMonth(),
-  rptYear: new Date().getFullYear(),
-  currentPage: 'calendar',
-  editingId: null,
-  editingType: null,
-  expenseFilter: 'all'
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, setDoc, query, where, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD-VeL5JzaTcdclQSdefFONL9PQ4Fa7ewU",
+  authDomain: "casa-vacacional-gogo.firebaseapp.com",
+  projectId: "casa-vacacional-gogo",
+  storageBucket: "casa-vacacional-gogo.firebasestorage.app",
+  messagingSenderId: "503202222032",
+  appId: "1:503202222032:web:1f0a7dc20a2d1c2d5333d5"
 };
 
-// Load from localStorage
-function loadData() {
-  try {
-    const saved = localStorage.getItem('vctracker');
-    if (saved) {
-      const d = JSON.parse(saved);
-      state.reservations = d.reservations || [];
-      state.expenses = d.expenses || [];
-    }
-  } catch(e) {}
-}
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
 
-function saveData() {
-  localStorage.setItem('vctracker', JSON.stringify({
-    reservations: state.reservations,
-    expenses: state.expenses
-  }));
-}
-
-// ===== HELPERS =====
+// ── STATE ──
+let currentUser = null;
+let userProfile = null;
+let properties = [];
+let reservations = [];
+let expenses = [];
+let currency = localStorage.getItem('vt-currency') || 'USD';
+let currentView = 'overview';
+let editingPropId = null;
+let editingResId = null;
+let editingExpId = null;
+let selectedResProp = 'all';
+let selectedExpProp = 'all';
+let selectedRptProp = 'all';
+let resMonth = new Date().getMonth();
+let resYear = new Date().getFullYear();
+let rptMonth = new Date().getMonth();
+let rptYear = new Date().getFullYear();
+let globalMonth = new Date().getMonth();
+let globalYear = new Date().getFullYear();
+let expFilter = 'all';
 const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-const fmt = (n) => '$' + Number(n).toLocaleString('es-MX', {minimumFractionDigits: 0, maximumFractionDigits: 0});
-const fmtDate = (d) => { if (!d) return ''; const [y,m,dd] = d.split('-'); return `${dd}/${m}/${y}`; };
-const today = () => { const n = new Date(); return n.toISOString().split('T')[0]; };
 
+// ── FORMAT ──
+function fmt(n) {
+  if (currency === 'CRC') return '₡' + Number(n).toLocaleString('es-CR', {minimumFractionDigits:0, maximumFractionDigits:0});
+  return '$' + Number(n).toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
+}
+function fmtDate(d) { if (!d) return ''; const [y,m,dd] = d.split('-'); return `${dd}/${m}/${y}`; }
+function todayStr() { return new Date().toISOString().split('T')[0]; }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
 
-function showToast(msg) {
+// ── TOAST ──
+window.showToast = function(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-// Get occupied dates for a month
-function getOccupiedDates(month, year) {
-  const occupied = {};
-  state.reservations.forEach(r => {
-    const start = new Date(r.checkin + 'T12:00:00');
-    const end = new Date(r.checkout + 'T12:00:00');
-    let cur = new Date(start);
-    while (cur < end) {
-      if (cur.getMonth() === month && cur.getFullYear() === year) {
-        const day = cur.getDate();
-        if (!occupied[day]) occupied[day] = [];
-        occupied[day].push(r);
-      }
-      cur.setDate(cur.getDate() + 1);
+// ── CURRENCY ──
+window.setCurrency = function(c) {
+  currency = c;
+  localStorage.setItem('vt-currency', c);
+  document.getElementById('cur-usd').classList.toggle('active', c === 'USD');
+  document.getElementById('cur-crc').classList.toggle('active', c === 'CRC');
+  renderCurrentView();
+}
+
+// ── AUTH ──
+window.doLogin = async function() {
+  const email = document.getElementById('auth-email').value.trim();
+  const pass = document.getElementById('auth-pass').value;
+  const btn = document.getElementById('auth-login-btn');
+  const err = document.getElementById('auth-err');
+  err.textContent = '';
+  btn.disabled = true;
+  btn.textContent = 'Ingresando...';
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    const msgs = { 'auth/invalid-credential':'Correo o contraseña incorrectos', 'auth/user-not-found':'Usuario no encontrado', 'auth/wrong-password':'Contraseña incorrecta', 'auth/invalid-email':'Correo inválido', 'auth/too-many-requests':'Demasiados intentos. Intenta más tarde.' };
+    err.textContent = msgs[e.code] || 'Error al iniciar sesión';
+    btn.disabled = false;
+    btn.textContent = 'Iniciar sesión';
+  }
+}
+
+window.doLogout = async function() {
+  closeDropdown();
+  await signOut(auth);
+}
+
+// ── AUTH STATE ──
+onAuthStateChanged(auth, async (user) => {
+  document.getElementById('loader').style.display = 'none';
+  if (user) {
+    currentUser = user;
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app').classList.add('visible');
+    await loadUserProfile();
+    await loadData();
+    initApp();
+  } else {
+    currentUser = null;
+    userProfile = null;
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('app').classList.remove('visible');
+    document.getElementById('auth-login-btn').disabled = false;
+    document.getElementById('auth-login-btn').textContent = 'Iniciar sesión';
+  }
+});
+
+// ── LOAD PROFILE ──
+async function loadUserProfile() {
+  const ref = doc(db, 'users', currentUser.uid);
+  const snap = await getDoc(ref);
+  if (snap.exists()) {
+    userProfile = snap.data();
+  } else {
+    // First user ever = admin
+    const allUsers = await getDocs(collection(db, 'users'));
+    const role = allUsers.empty ? 'admin' : 'viewer';
+    userProfile = { email: currentUser.email, name: currentUser.email.split('@')[0], role };
+    await setDoc(ref, userProfile);
+  }
+  const initials = (userProfile.name || userProfile.email || '?').slice(0,2).toUpperCase();
+  document.getElementById('avatar-initials').textContent = initials;
+  document.getElementById('settings-email').textContent = userProfile.email || currentUser.email;
+  document.getElementById('settings-role').textContent = userProfile.role === 'admin' ? '🔑 Administrador' : '👁 Solo lectura';
+}
+
+// ── LOAD DATA ──
+async function loadData() {
+  // Properties
+  const pSnap = await getDocs(collection(db, 'properties'));
+  properties = pSnap.docs.map(d => ({id:d.id, ...d.data()}));
+
+  // Reservations
+  const rSnap = await getDocs(collection(db, 'reservations'));
+  reservations = rSnap.docs.map(d => ({id:d.id, ...d.data()}));
+
+  // Expenses
+  const eSnap = await getDocs(collection(db, 'expenses'));
+  expenses = eSnap.docs.map(d => ({id:d.id, ...d.data()}));
+}
+
+// ── INIT ──
+function initApp() {
+  const isAdmin = userProfile?.role === 'admin';
+  document.getElementById('tab-admin').style.display = isAdmin ? 'block' : 'none';
+  document.getElementById('btn-add-prop').style.display = isAdmin ? 'flex' : 'none';
+  updateCurrencyUI();
+  showView('overview');
+}
+
+function updateCurrencyUI() {
+  document.getElementById('cur-usd').classList.toggle('active', currency === 'USD');
+  document.getElementById('cur-crc').classList.toggle('active', currency === 'CRC');
+}
+
+// ── NAVIGATION ──
+window.showView = function(v) {
+  currentView = v;
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('view-' + v)?.classList.add('active');
+  document.querySelector(`.nav-tab[data-view="${v}"]`)?.classList.add('active');
+  renderCurrentView();
+}
+
+function renderCurrentView() {
+  switch(currentView) {
+    case 'overview': renderOverview(); break;
+    case 'properties': renderProperties(); break;
+    case 'reservations': renderReservations(); break;
+    case 'expenses': renderExpenses(); break;
+    case 'report': renderReport(); break;
+    case 'admin': renderAdmin(); break;
+    case 'settings': break;
+  }
+}
+
+// ── DROPDOWN ──
+window.toggleDropdown = function() {
+  document.getElementById('dropdown').classList.toggle('open');
+}
+window.closeDropdown = function() {
+  document.getElementById('dropdown').classList.remove('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#avatar-btn') && !e.target.closest('#dropdown')) closeDropdown();
+});
+
+// ── OVERVIEW ──
+function renderOverview() {
+  document.getElementById('global-month-lbl').textContent = `${months[globalMonth]} ${globalYear}`;
+  const cont = document.getElementById('overview-content');
+  if (!properties.length) {
+    cont.innerHTML = `<div class="empty"><div class="empty-icon">🏠</div><div class="empty-text">No hay propiedades registradas.<br>Agrega una en la sección Propiedades.</div></div>`;
+    return;
+  }
+  let totalInc = 0, totalExp = 0;
+  properties.forEach(p => {
+    const pRes = getMonthRes(p.id, globalMonth, globalYear);
+    const pExp = getMonthExp(p.id, globalMonth, globalYear);
+    totalInc += pRes.reduce((s,r) => s + parseFloat(r.amount||0), 0);
+    totalExp += pExp.reduce((s,e) => s + parseFloat(e.amount||0), 0);
+  });
+  const totalNet = totalInc - totalExp;
+  const mx = Math.max(totalInc, totalExp, 1);
+
+  let html = `
+  <div class="global-stat">
+    <div class="global-stat-hdr"><div class="global-stat-title">Ingresos totales</div><span style="font-size:20px">🏠</span></div>
+    <div class="global-big inc">${fmt(totalInc)}</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+    <div class="global-stat">
+      <div class="global-stat-title" style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px">Gastos</div>
+      <div class="global-big exp" style="font-size:24px">${fmt(totalExp)}</div>
+    </div>
+    <div class="global-stat">
+      <div class="global-stat-title" style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px">Neto</div>
+      <div class="global-big net" style="font-size:24px;color:${totalNet>=0?'var(--green)':'var(--red)'}">${fmt(totalNet)}</div>
+    </div>
+  </div>`;
+
+  html += `<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;font-weight:600">Por propiedad</div>`;
+
+  properties.forEach(p => {
+    const pRes = getMonthRes(p.id, globalMonth, globalYear);
+    const pExp = getMonthExp(p.id, globalMonth, globalYear);
+    const inc = pRes.reduce((s,r) => s + parseFloat(r.amount||0), 0);
+    const exp = pExp.reduce((s,e) => s + parseFloat(e.amount||0), 0);
+    const net = inc - exp;
+    const occ = getOccDays(p.id, globalMonth, globalYear);
+    const dim = new Date(globalYear, globalMonth+1, 0).getDate();
+    html += `
+    <div class="prop-card" onclick="selectPropAndGo('${p.id}')">
+      <div class="prop-header">
+        <div class="prop-icon">${p.icon||'🏠'}</div>
+        <div><div class="prop-name">${p.name}</div><div class="prop-loc">${p.location||''}</div></div>
+      </div>
+      <div class="prop-stats">
+        <div class="prop-stat"><div class="val inc">${fmt(inc)}</div><div class="lbl">Ingresos</div></div>
+        <div class="prop-stat"><div class="val exp">${fmt(exp)}</div><div class="lbl">Gastos</div></div>
+        <div class="prop-stat"><div class="val net" style="color:${net>=0?'var(--green)':'var(--red)'}">${fmt(net)}</div><div class="lbl">Neto</div></div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--text3)">${occ} días ocupados de ${dim} (${Math.round(occ/dim*100)}%)</div>
+    </div>`;
+  });
+
+  cont.innerHTML = html;
+}
+
+window.changeGlobalMonth = function(d) {
+  globalMonth += d;
+  if (globalMonth < 0) { globalMonth = 11; globalYear--; }
+  if (globalMonth > 11) { globalMonth = 0; globalYear++; }
+  renderOverview();
+}
+
+window.selectPropAndGo = function(propId) {
+  selectedResProp = propId;
+  selectedExpProp = propId;
+  selectedRptProp = propId;
+  showView('reservations');
+}
+
+// ── PROPERTIES ──
+function renderProperties() {
+  const c = document.getElementById('props-list');
+  if (!properties.length) {
+    c.innerHTML = `<div class="empty"><div class="empty-icon">🏠</div><div class="empty-text">No hay propiedades aún.<br>${userProfile?.role==='admin'?'Toca + para agregar una.':'Pídele al administrador que agregue propiedades.'}</div></div>`;
+    return;
+  }
+  c.innerHTML = properties.map(p => {
+    const allRes = reservations.filter(r => r.propertyId === p.id);
+    const allExp = expenses.filter(e => e.propertyId === p.id);
+    const totalInc = allRes.reduce((s,r) => s+parseFloat(r.amount||0), 0);
+    const totalExp = allExp.reduce((s,e) => s+parseFloat(e.amount||0), 0);
+    return `
+    <div class="prop-card" onclick="${userProfile?.role==='admin'?`editProp('${p.id}')`:`selectPropAndGo('${p.id}')`}">
+      <div class="prop-header">
+        <div class="prop-icon">${p.icon||'🏠'}</div>
+        <div style="flex:1"><div class="prop-name">${p.name}</div><div class="prop-loc">${p.location||'Sin ubicación'}</div></div>
+        <div style="font-size:11px;color:var(--text3)">${allRes.length} reservas</div>
+      </div>
+      <div class="prop-stats">
+        <div class="prop-stat"><div class="val inc">${fmt(totalInc)}</div><div class="lbl">Total Ing.</div></div>
+        <div class="prop-stat"><div class="val exp">${fmt(totalExp)}</div><div class="lbl">Total Gas.</div></div>
+        <div class="prop-stat"><div class="val net" style="color:${totalInc-totalExp>=0?'var(--green)':'var(--red)'}">${fmt(totalInc-totalExp)}</div><div class="lbl">Neto</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.openAddProp = function() {
+  editingPropId = null;
+  document.getElementById('modal-prop-title').textContent = 'Nueva propiedad';
+  document.getElementById('prop-name-inp').value = '';
+  document.getElementById('prop-loc-inp').value = '';
+  document.getElementById('prop-icon-inp').value = '🏠';
+  document.getElementById('prop-del-btn').style.display = 'none';
+  openModal('modal-prop');
+}
+
+window.editProp = function(id) {
+  const p = properties.find(x => x.id === id);
+  if (!p) return;
+  editingPropId = id;
+  document.getElementById('modal-prop-title').textContent = 'Editar propiedad';
+  document.getElementById('prop-name-inp').value = p.name || '';
+  document.getElementById('prop-loc-inp').value = p.location || '';
+  document.getElementById('prop-icon-inp').value = p.icon || '🏠';
+  document.getElementById('prop-del-btn').style.display = 'block';
+  openModal('modal-prop');
+}
+
+window.saveProp = async function() {
+  const name = document.getElementById('prop-name-inp').value.trim();
+  const location = document.getElementById('prop-loc-inp').value.trim();
+  const icon = document.getElementById('prop-icon-inp').value.trim() || '🏠';
+  if (!name) { showToast('⚠️ El nombre es requerido'); return; }
+  const btn = document.getElementById('prop-save-btn');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  try {
+    if (editingPropId) {
+      await updateDoc(doc(db,'properties',editingPropId), {name,location,icon});
+      const i = properties.findIndex(x=>x.id===editingPropId);
+      if(i>=0) properties[i] = {...properties[i],name,location,icon};
+    } else {
+      const ref = await addDoc(collection(db,'properties'), {name,location,icon,createdBy:currentUser.uid,createdAt:serverTimestamp()});
+      properties.push({id:ref.id,name,location,icon});
+    }
+    closeModal('modal-prop');
+    renderProperties();
+    showToast('✓ Propiedad guardada');
+  } catch(e) { showToast('Error: ' + e.message); }
+  btn.disabled = false; btn.textContent = 'Guardar propiedad';
+}
+
+window.deleteProp = async function() {
+  if (!confirm('¿Eliminar esta propiedad? También se eliminarán sus reservas y gastos.')) return;
+  try {
+    await deleteDoc(doc(db,'properties',editingPropId));
+    properties = properties.filter(x=>x.id!==editingPropId);
+    // clean up reservations and expenses
+    const rDel = reservations.filter(r=>r.propertyId===editingPropId);
+    const eDel = expenses.filter(e=>e.propertyId===editingPropId);
+    for(const r of rDel) await deleteDoc(doc(db,'reservations',r.id));
+    for(const e of eDel) await deleteDoc(doc(db,'expenses',e.id));
+    reservations = reservations.filter(r=>r.propertyId!==editingPropId);
+    expenses = expenses.filter(e=>e.propertyId!==editingPropId);
+    closeModal('modal-prop');
+    renderProperties();
+    showToast('✓ Propiedad eliminada');
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+// ── RESERVATIONS ──
+function getMonthRes(propId, m, y) {
+  return reservations.filter(r => {
+    if (propId !== 'all' && r.propertyId !== propId) return false;
+    const ci = new Date(r.checkin+'T12:00:00'), co = new Date(r.checkout+'T12:00:00');
+    return ci <= new Date(y,m+1,0) && co >= new Date(y,m,1);
+  });
+}
+
+function getOccDays(propId, m, y) {
+  const occ = new Set();
+  reservations.filter(r => r.propertyId === propId).forEach(r => {
+    let cur = new Date(r.checkin+'T12:00:00');
+    const end = new Date(r.checkout+'T12:00:00');
+    while(cur < end) {
+      if(cur.getMonth()===m && cur.getFullYear()===y) occ.add(cur.getDate());
+      cur.setDate(cur.getDate()+1);
     }
   });
-  return occupied;
+  return occ.size;
 }
 
-// Expenses for a month
-function getMonthExpenses(month, year) {
-  return state.expenses.filter(e => {
-    const d = new Date(e.date + 'T12:00:00');
-    if (e.frequency === 'mensual') return true; // show all months? simplify: filter by creation month
-    return d.getMonth() === month && d.getFullYear() === year;
-  }).map(e => {
-    let amt = parseFloat(e.amount);
-    // If monthly, just show once
-    return {...e, displayAmount: amt};
-  });
-}
-
-// Reservations for a month
-function getMonthReservations(month, year) {
-  return state.reservations.filter(r => {
-    const ci = new Date(r.checkin + 'T12:00:00');
-    const co = new Date(r.checkout + 'T12:00:00');
-    const mStart = new Date(year, month, 1);
-    const mEnd = new Date(year, month + 1, 0);
-    return ci <= mEnd && co >= mStart;
-  });
-}
-
-// ===== SUMMARY =====
-function updateSummary() {
-  const m = state.calMonth, y = state.calYear;
-  document.getElementById('header-month-year').textContent = ` · ${months[m]} ${y}`;
-
-  const res = getMonthReservations(m, y);
-  const income = res.reduce((sum, r) => sum + parseFloat(r.amount), 0);
-
-  const exp = getMonthExpenses(m, y);
-  const expenses = exp.reduce((sum, e) => sum + parseFloat(e.amount), 0);
-  const profit = income - expenses;
-
-  document.getElementById('sum-income').textContent = fmt(income);
-  document.getElementById('sum-expenses').textContent = fmt(expenses);
-  document.getElementById('sum-profit').textContent = fmt(profit);
-  document.getElementById('sum-profit').style.color = profit >= 0 ? 'var(--ocean)' : 'var(--coral)';
-}
-
-// ===== CALENDAR =====
-function renderCalendar() {
-  const m = state.calMonth, y = state.calYear;
-  document.getElementById('cal-month-title').textContent = `${months[m]} ${y}`;
-
-  const firstDay = new Date(y, m, 1).getDay();
-  const daysInMonth = new Date(y, m + 1, 0).getDate();
-  const todayStr = today();
-  const occupied = getOccupiedDates(m, y);
-
-  let html = '';
-  for (let i = 0; i < firstDay; i++) html += `<div class="cal-day empty"></div>`;
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const isToday = dateStr === todayStr;
-    const isOcc = !!occupied[d];
-    let cls = 'cal-day';
-    if (isToday) cls += ' today';
-    if (isOcc) cls += ' occupied';
-    const dot = isOcc ? '<div class="dot"></div>' : '';
-    html += `<div class="${cls}" data-date="${dateStr}" data-day="${d}">${d}${dot}</div>`;
-  }
-
-  document.getElementById('cal-days').innerHTML = html;
-
-  // Occupancy stats
-  const occDays = Object.keys(occupied).length;
-  const pct = Math.round((occDays / daysInMonth) * 100);
-  const resCount = getMonthReservations(m, y).length;
-  document.getElementById('occ-days').textContent = occDays;
-  document.getElementById('occ-pct').textContent = pct + '%';
-  document.getElementById('occ-res').textContent = resCount;
-
-  // Click on day
-  document.querySelectorAll('.cal-day:not(.empty)').forEach(el => {
-    el.addEventListener('click', () => {
-      const dateStr = el.dataset.date;
-      const day = parseInt(el.dataset.day);
-      const res = occupied[day];
-      if (res && res.length > 0) {
-        showDetailModal(res[0], 'income');
-      } else {
-        // Pre-fill checkin
-        document.getElementById('i-checkin').value = dateStr;
-        showAddModal('income');
+function getOccupiedMap(propId, m, y) {
+  const occ = {};
+  reservations.filter(r => r.propertyId === propId || propId === 'all').forEach(r => {
+    let cur = new Date(r.checkin+'T12:00:00');
+    const end = new Date(r.checkout+'T12:00:00');
+    while(cur < end) {
+      if(cur.getMonth()===m && cur.getFullYear()===y) {
+        const d = cur.getDate();
+        if(!occ[d]) occ[d] = [];
+        occ[d].push(r);
       }
-    });
+      cur.setDate(cur.getDate()+1);
+    }
   });
-
-  document.getElementById('cal-day-detail').innerHTML = '';
+  return occ;
 }
 
-// ===== RESERVATIONS =====
+function buildPropSelector(containerId, selected, onSelect) {
+  const c = document.getElementById(containerId);
+  let html = `<div class="prop-pill ${selected==='all'?'active':''}" onclick="${onSelect}('all')">Todas</div>`;
+  html += properties.map(p => `<div class="prop-pill ${selected===p.id?'active':''}" onclick="${onSelect}('${p.id}')">${p.icon||'🏠'} ${p.name}</div>`).join('');
+  c.innerHTML = html;
+}
+
+function buildPropOptions(selId, currentVal) {
+  const sel = document.getElementById(selId);
+  sel.innerHTML = properties.map(p => `<option value="${p.id}" ${p.id===currentVal?'selected':''}>${p.icon||'🏠'} ${p.name}</option>`).join('');
+}
+
+window.setResProp = function(id) {
+  selectedResProp = id;
+  renderReservations();
+}
+
 function renderReservations() {
-  const m = state.viewMonth, y = state.viewYear;
-  document.getElementById('res-month-title').textContent = `${months[m]} ${y}`;
-  const res = getMonthReservations(m, y);
-  res.sort((a,b) => a.checkin.localeCompare(b.checkin));
+  buildPropSelector('res-prop-selector', selectedResProp, 'setResProp');
+  document.getElementById('res-month-lbl').textContent = `${months[resMonth]} ${resYear}`;
 
-  const container = document.getElementById('reservations-list');
-  if (res.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="emoji">🌴</div><p>No hay reservas en ${months[m]}.<br>¡Toca + para agregar una!</p></div>`;
-    return;
+  // Calendar
+  const propId = selectedResProp;
+  const occ = getOccupiedMap(propId==='all' ? 'all' : propId, resMonth, resYear);
+  const fd = new Date(resYear,resMonth,1).getDay();
+  const dim = new Date(resYear,resMonth+1,0).getDate();
+  const ts = todayStr();
+  let calHtml = '';
+  for(let i=0;i<fd;i++) calHtml += '<div class="cal-day empty"></div>';
+  for(let d=1;d<=dim;d++) {
+    const ds = `${resYear}-${String(resMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    let cls = 'cal-day';
+    if(ds===ts) cls+=' today';
+    if(occ[d]) cls+=' occupied';
+    calHtml += `<div class="${cls}" data-date="${ds}" data-day="${d}" onclick="calDayClick(${d},'${ds}')">${d}${occ[d]?'<div class="cdot"></div>':''}</div>`;
   }
+  const occCount = Object.keys(occ).length;
+  const res = getMonthRes(propId, resMonth, resYear);
 
-  const platformEmoji = {'Airbnb':'🏠','Booking':'🛏️','Vrbo':'🏡','Directo':'🤝','Otra':'📱'};
-  container.innerHTML = res.map(r => {
-    const ci = new Date(r.checkin + 'T12:00:00');
-    const co = new Date(r.checkout + 'T12:00:00');
-    const nights = Math.round((co - ci) / 86400000);
-    const emoji = platformEmoji[r.platform] || '🏠';
-    return `<div class="booking-card" data-id="${r.id}">
-      <div class="booking-icon">${emoji}</div>
-      <div class="booking-info">
-        <div class="booking-guest">${r.guest}</div>
-        <div class="booking-dates">${fmtDate(r.checkin)} → ${fmtDate(r.checkout)} · ${nights} noches</div>
-        <div class="booking-tags">
-          <span class="booking-tag">${r.platform}</span>
-          <span class="booking-tag">👥 ${r.guests || 1} huéspedes</span>
-          ${r.notes ? `<span class="booking-tag">💬</span>` : ''}
-        </div>
+  document.getElementById('cal-container').innerHTML = `
+  <div class="cal-wrap">
+    <div class="cal-hdr">
+      <div style="font-size:12px;color:var(--text2)">${propId==='all'?'Todas las propiedades':(properties.find(p=>p.id===propId)?.name||'')}</div>
+    </div>
+    <div class="cal-grid">
+      <div class="cal-wdays"><div class="cal-wday">Do</div><div class="cal-wday">Lu</div><div class="cal-wday">Ma</div><div class="cal-wday">Mi</div><div class="cal-wday">Ju</div><div class="cal-wday">Vi</div><div class="cal-wday">Sá</div></div>
+      <div class="cal-days">${calHtml}</div>
+    </div>
+    <div class="occ-bar">
+      <div class="occ-item"><div class="ov">${occCount}</div><div class="ol">Días ocup.</div></div>
+      <div class="occ-div"></div>
+      <div class="occ-item"><div class="ov">${Math.round(occCount/dim*100)}%</div><div class="ol">Ocupación</div></div>
+      <div class="occ-div"></div>
+      <div class="occ-item"><div class="ov">${res.length}</div><div class="ol">Reservas</div></div>
+    </div>
+  </div>`;
+
+  const rList = document.getElementById('res-list');
+  if(!res.length) { rList.innerHTML = `<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">No hay reservas este mes</div></div>`; return; }
+  res.sort((a,b)=>a.checkin.localeCompare(b.checkin));
+  const pe = {'Airbnb':'🏠','Booking':'🛏️','Vrbo':'🏡','Directo':'🤝','Otra':'📱'};
+  rList.innerHTML = res.map(r => {
+    const n = Math.round((new Date(r.checkout+'T12:00:00')-new Date(r.checkin+'T12:00:00'))/86400000);
+    const prop = properties.find(p=>p.id===r.propertyId);
+    return `<div class="list-item" onclick="showResDetail('${r.id}')">
+      <div class="li-icon inc">${pe[r.platform]||'🏠'}</div>
+      <div class="li-info">
+        <div class="li-name">${r.guest}</div>
+        <div class="li-meta">${fmtDate(r.checkin)} → ${fmtDate(r.checkout)} · ${n} noches${prop?` · ${prop.name}`:''}</div>
       </div>
-      <div class="booking-amount">${fmt(r.amount)}</div>
+      <div class="li-amt inc">${fmt(r.amount||0)}</div>
     </div>`;
   }).join('');
+}
 
-  container.querySelectorAll('.booking-card').forEach(el => {
-    el.addEventListener('click', () => {
-      const r = state.reservations.find(x => x.id === el.dataset.id);
-      if (r) showDetailModal(r, 'income');
-    });
+window.calDayClick = function(day, dateStr) {
+  const occ = getOccupiedMap(selectedResProp==='all'?'all':selectedResProp, resMonth, resYear);
+  if(occ[day] && occ[day].length) showResDetail(occ[day][0].id);
+  else { document.getElementById('res-checkin').value = dateStr; openAddReservation(); }
+}
+
+window.changeResMonth = function(d) {
+  resMonth += d;
+  if(resMonth<0){resMonth=11;resYear--;}
+  if(resMonth>11){resMonth=0;resYear++;}
+  renderReservations();
+}
+
+window.openAddReservation = function(id) {
+  editingResId = null;
+  document.getElementById('modal-res-title').textContent = 'Nueva reserva';
+  document.getElementById('res-del-btn').style.display = 'none';
+  buildPropOptions('res-prop-sel', selectedResProp==='all'?(properties[0]?.id||''):selectedResProp);
+  document.getElementById('res-guest').value = '';
+  if(!document.getElementById('res-checkin').value) document.getElementById('res-checkin').value = todayStr();
+  document.getElementById('res-checkout').value = '';
+  document.getElementById('res-amount').value = '';
+  document.getElementById('res-platform').value = 'Airbnb';
+  document.getElementById('res-guests').value = '';
+  document.getElementById('res-notes').value = '';
+  openModal('modal-res');
+}
+
+window.showResDetail = function(id) {
+  const r = reservations.find(x=>x.id===id);
+  if(!r) return;
+  const n = Math.round((new Date(r.checkout+'T12:00:00')-new Date(r.checkin+'T12:00:00'))/86400000);
+  const prop = properties.find(p=>p.id===r.propertyId);
+  document.getElementById('modal-res-detail-content').innerHTML = `
+  <div class="modal-handle"></div>
+  <div class="detail-hdr">
+    <h2>🏠 ${r.guest}</h2>
+    <div class="damt inc">${fmt(r.amount||0)}</div>
+  </div>
+  <div class="detail-drow"><span class="dk">Propiedad</span><span class="dv">${prop?.name||'—'}</span></div>
+  <div class="detail-drow"><span class="dk">Check-in</span><span class="dv">${fmtDate(r.checkin)}</span></div>
+  <div class="detail-drow"><span class="dk">Check-out</span><span class="dv">${fmtDate(r.checkout)}</span></div>
+  <div class="detail-drow"><span class="dk">Noches</span><span class="dv">${n}</span></div>
+  <div class="detail-drow"><span class="dk">Por noche</span><span class="dv">${n>0?fmt((r.amount||0)/n):'—'}</span></div>
+  <div class="detail-drow"><span class="dk">Plataforma</span><span class="dv">${r.platform||'—'}</span></div>
+  <div class="detail-drow"><span class="dk">Huéspedes</span><span class="dv">${r.guests||1}</span></div>
+  ${r.notes?`<div class="detail-drow"><span class="dk">Notas</span><span class="dv">${r.notes}</span></div>`:''}
+  <br>
+  <button class="btn-save" onclick="editReservation('${id}')">✏️ Editar</button>
+  <button class="btn-danger" onclick="deleteReservationDirect('${id}')">Eliminar reserva</button>`;
+  openModal('modal-res-detail');
+}
+
+window.editReservation = function(id) {
+  closeModal('modal-res-detail');
+  const r = reservations.find(x=>x.id===id);
+  if(!r) return;
+  editingResId = id;
+  document.getElementById('modal-res-title').textContent = 'Editar reserva';
+  document.getElementById('res-del-btn').style.display = 'block';
+  buildPropOptions('res-prop-sel', r.propertyId);
+  document.getElementById('res-guest').value = r.guest||'';
+  document.getElementById('res-checkin').value = r.checkin||'';
+  document.getElementById('res-checkout').value = r.checkout||'';
+  document.getElementById('res-amount').value = r.amount||'';
+  document.getElementById('res-platform').value = r.platform||'Airbnb';
+  document.getElementById('res-guests').value = r.guests||'';
+  document.getElementById('res-notes').value = r.notes||'';
+  setTimeout(() => openModal('modal-res'), 300);
+}
+
+window.saveReservation = async function() {
+  const propId = document.getElementById('res-prop-sel').value;
+  const guest = document.getElementById('res-guest').value.trim();
+  const checkin = document.getElementById('res-checkin').value;
+  const checkout = document.getElementById('res-checkout').value;
+  const amount = parseFloat(document.getElementById('res-amount').value)||0;
+  const platform = document.getElementById('res-platform').value;
+  const guests = parseInt(document.getElementById('res-guests').value)||1;
+  const notes = document.getElementById('res-notes').value.trim();
+  if(!guest||!checkin||!checkout) { showToast('⚠️ Completa todos los campos'); return; }
+  if(checkin>=checkout) { showToast('⚠️ Check-out debe ser después del check-in'); return; }
+  const btn = document.getElementById('res-save-btn');
+  btn.disabled=true; btn.textContent='Guardando...';
+  const data = {propertyId:propId,guest,checkin,checkout,amount,platform,guests,notes};
+  try {
+    if(editingResId) {
+      await updateDoc(doc(db,'reservations',editingResId), data);
+      const i = reservations.findIndex(x=>x.id===editingResId);
+      if(i>=0) reservations[i]={...reservations[i],...data};
+    } else {
+      const ref = await addDoc(collection(db,'reservations'), {...data,createdBy:currentUser.uid,createdAt:serverTimestamp()});
+      reservations.push({id:ref.id,...data});
+    }
+    closeModal('modal-res');
+    renderReservations();
+    showToast('✓ Reserva guardada');
+  } catch(e) { showToast('Error: '+e.message); }
+  btn.disabled=false; btn.textContent='Guardar reserva';
+}
+
+window.deleteReservation = async function() {
+  if(!editingResId) return;
+  await deleteReservationDirect(editingResId);
+  closeModal('modal-res');
+}
+
+window.deleteReservationDirect = async function(id) {
+  if(!confirm('¿Eliminar esta reserva?')) return;
+  try {
+    await deleteDoc(doc(db,'reservations',id));
+    reservations = reservations.filter(x=>x.id!==id);
+    closeModal('modal-res-detail');
+    renderReservations();
+    showToast('✓ Reserva eliminada');
+  } catch(e) { showToast('Error: '+e.message); }
+}
+
+// ── EXPENSES ──
+function getMonthExp(propId, m, y) {
+  return expenses.filter(e => {
+    if(propId!=='all' && e.propertyId!==propId) return false;
+    const d = new Date(e.date+'T12:00:00');
+    if(e.frequency==='mensual') return true;
+    return d.getMonth()===m && d.getFullYear()===y;
   });
 }
 
-// ===== EXPENSES =====
+window.setExpProp = function(id) {
+  selectedExpProp = id;
+  renderExpenses();
+}
+
+window.setExpFilter = function(f, el) {
+  expFilter = f;
+  document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  renderExpenses();
+}
+
+const catIcon = {'Electricidad':'⚡','Agua':'💧','Internet':'📶','Limpieza':'🧹','Piscina':'🏊','Mantenimiento':'🔧','Gas':'🔥','Jardinería':'🌿','Impuestos':'📋','Seguro':'🛡️','Otro':'📦'};
+const catCls = {'Electricidad':'utilities','Agua':'utilities','Gas':'utilities','Limpieza':'cleaning','Piscina':'pool','Internet':'internet','Mantenimiento':'maintenance','Jardinería':'maintenance'};
+
 function renderExpenses() {
-  const filter = state.expenseFilter;
-  let exps = [...state.expenses];
-  if (filter !== 'all') exps = exps.filter(e => e.frequency === filter);
-  exps.sort((a,b) => b.date.localeCompare(a.date));
-
-  const catIcon = {
-    'Electricidad':'⚡','Agua':'💧','Internet':'📶','Limpieza':'🧹',
-    'Piscina':'🏊','Mantenimiento':'🔧','Gas':'🔥','Jardinería':'🌿',
-    'Impuestos':'📋','Seguro':'🛡️','Otro':'📦'
-  };
-  const catClass = {
-    'Electricidad':'utilities','Agua':'utilities','Gas':'utilities',
-    'Limpieza':'cleaning','Piscina':'pool','Internet':'internet',
-    'Mantenimiento':'maintenance','Jardinería':'maintenance',
-    'Impuestos':'other','Seguro':'other','Otro':'other'
-  };
-
-  const container = document.getElementById('expenses-list');
-  if (exps.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="emoji">💸</div><p>No hay gastos registrados.<br>Toca + para agregar uno.</p></div>`;
-    return;
-  }
-
-  container.innerHTML = exps.map(e => {
-    const icon = catIcon[e.category] || '📦';
-    const cls = catClass[e.category] || 'other';
-    return `<div class="expense-item" data-id="${e.id}">
-      <div class="expense-icon ${cls}">${icon}</div>
-      <div class="expense-info">
-        <div class="expense-name">${e.category}${e.description ? ` · ${e.description}` : ''}</div>
-        <div class="expense-meta">${fmtDate(e.date)} <span class="freq-badge ${e.frequency}">${e.frequency.charAt(0).toUpperCase()+e.frequency.slice(1)}</span></div>
+  buildPropSelector('exp-prop-selector', selectedExpProp, 'setExpProp');
+  let exps = expenses.filter(e => selectedExpProp==='all' || e.propertyId===selectedExpProp);
+  if(expFilter!=='all') exps = exps.filter(e=>e.frequency===expFilter);
+  exps.sort((a,b)=>b.date?.localeCompare(a.date));
+  const c = document.getElementById('exp-list');
+  if(!exps.length) { c.innerHTML=`<div class="empty"><div class="empty-icon">💸</div><div class="empty-text">No hay gastos registrados</div></div>`; return; }
+  c.innerHTML = exps.map(e => {
+    const prop = properties.find(p=>p.id===e.propertyId);
+    return `<div class="list-item" onclick="showExpDetail('${e.id}')">
+      <div class="li-icon exp">${catIcon[e.category]||'📦'}</div>
+      <div class="li-info">
+        <div class="li-name">${e.category}${e.description?` · ${e.description}`:''}</div>
+        <div class="li-meta">${fmtDate(e.date)}${prop?` · ${prop.name}`:''} <span class="freq-tag ${e.frequency}">${e.frequency}</span></div>
       </div>
-      <div class="expense-amount">${fmt(e.amount)}</div>
+      <div class="li-amt exp">${fmt(e.amount||0)}</div>
     </div>`;
   }).join('');
-
-  container.querySelectorAll('.expense-item').forEach(el => {
-    el.addEventListener('click', () => {
-      const exp = state.expenses.find(x => x.id === el.dataset.id);
-      if (exp) showDetailModal(exp, 'expense');
-    });
-  });
 }
 
-// ===== REPORT =====
-function renderReport() {
-  const m = state.rptMonth, y = state.rptYear;
-  document.getElementById('rpt-month-title').textContent = `${months[m]} ${y}`;
-
-  const res = getMonthReservations(m, y);
-  const income = res.reduce((sum, r) => sum + parseFloat(r.amount), 0);
-  const exp = getMonthExpenses(m, y);
-  const expenses = exp.reduce((sum, e) => sum + parseFloat(e.amount), 0);
-  const profit = income - expenses;
-  const max = Math.max(income, expenses, 1);
-
-  document.getElementById('rpt-income').textContent = fmt(income);
-  document.getElementById('rpt-expenses').textContent = fmt(expenses);
-  const pEl = document.getElementById('rpt-profit');
-  pEl.textContent = fmt(profit);
-  pEl.className = 'rval ' + (profit >= 0 ? 'blue' : 'red');
-
-  const incPct = Math.round((income/max)*100);
-  const expPct = Math.round((expenses/max)*100);
-  document.getElementById('rpt-bar-income').style.width = incPct + '%';
-  document.getElementById('rpt-bar-expense').style.width = expPct + '%';
-  document.getElementById('rpt-bar-income-pct').textContent = incPct + '%';
-  document.getElementById('rpt-bar-expense-pct').textContent = expPct + '%';
-
-  // Expense breakdown by category
-  const catTotals = {};
-  exp.forEach(e => {
-    catTotals[e.category] = (catTotals[e.category] || 0) + parseFloat(e.amount);
-  });
-  const catEmoji = {'Electricidad':'⚡','Agua':'💧','Internet':'📶','Limpieza':'🧹','Piscina':'🏊','Mantenimiento':'🔧','Gas':'🔥','Jardinería':'🌿','Impuestos':'📋','Seguro':'🛡️','Otro':'📦'};
-  const breakdown = Object.entries(catTotals).sort((a,b) => b[1]-a[1]);
-  document.getElementById('expense-breakdown').innerHTML = breakdown.length === 0
-    ? '<div style="text-align:center;padding:20px;color:var(--light);font-size:14px">Sin gastos este mes</div>'
-    : breakdown.map(([cat, amt]) => `<div class="report-row">
-        <div class="rlabel">${catEmoji[cat]||'📦'} ${cat}</div>
-        <div class="rval red">${fmt(amt)}</div>
-      </div>`).join('');
-
-  // Occupancy
-  const occ = getOccupiedDates(m, y);
-  const daysInMonth = new Date(y, m+1, 0).getDate();
-  const occDays = Object.keys(occ).length;
-  const nights = res.reduce((s,r) => { const ci=new Date(r.checkin+'T12:00:00'),co=new Date(r.checkout+'T12:00:00'); return s+Math.round((co-ci)/86400000); }, 0);
-  document.getElementById('rpt-occ-days').textContent = occDays;
-  document.getElementById('rpt-occ-pct').textContent = Math.round((occDays/daysInMonth)*100) + '%';
-  document.getElementById('rpt-res-count').textContent = res.length;
-  document.getElementById('rpt-avg-night').textContent = nights > 0 ? fmt(income/nights) : '$0';
+window.openAddExpense = function() {
+  editingExpId = null;
+  document.getElementById('modal-exp-title').textContent = 'Nuevo gasto';
+  document.getElementById('exp-del-btn').style.display = 'none';
+  buildPropOptions('exp-prop-sel', selectedExpProp==='all'?(properties[0]?.id||''):selectedExpProp);
+  document.getElementById('exp-cat').value = 'Electricidad';
+  document.getElementById('exp-desc').value = '';
+  document.getElementById('exp-amount').value = '';
+  document.getElementById('exp-freq').value = 'mensual';
+  document.getElementById('exp-date').value = todayStr();
+  openModal('modal-exp');
 }
 
-// ===== MODALS =====
-function showAddModal(type = 'income', editId = null) {
-  state.editingId = editId;
-  state.editingType = editId ? type : null;
+window.showExpDetail = function(id) {
+  const e = expenses.find(x=>x.id===id);
+  if(!e) return;
+  const prop = properties.find(p=>p.id===e.propertyId);
+  document.getElementById('modal-exp-detail-content').innerHTML = `
+  <div class="modal-handle"></div>
+  <div class="detail-hdr exp-hdr">
+    <h2>${catIcon[e.category]||'📦'} ${e.category}</h2>
+    <div class="damt exp">${fmt(e.amount||0)}</div>
+  </div>
+  ${e.description?`<div class="detail-drow"><span class="dk">Descripción</span><span class="dv">${e.description}</span></div>`:''}
+  <div class="detail-drow"><span class="dk">Propiedad</span><span class="dv">${prop?.name||'—'}</span></div>
+  <div class="detail-drow"><span class="dk">Fecha</span><span class="dv">${fmtDate(e.date)}</span></div>
+  <div class="detail-drow"><span class="dk">Frecuencia</span><span class="dv">${e.frequency}</span></div>
+  <br>
+  <button class="btn-save" onclick="editExpense('${id}')">✏️ Editar</button>
+  <button class="btn-danger" onclick="deleteExpenseDirect('${id}')">Eliminar gasto</button>`;
+  openModal('modal-exp-detail');
+}
 
-  const modal = document.getElementById('add-modal');
-  const title = document.getElementById('add-modal-title');
-  const cancelBtn = document.getElementById('cancel-btn');
+window.editExpense = function(id) {
+  closeModal('modal-exp-detail');
+  const e = expenses.find(x=>x.id===id);
+  if(!e) return;
+  editingExpId = id;
+  document.getElementById('modal-exp-title').textContent = 'Editar gasto';
+  document.getElementById('exp-del-btn').style.display = 'block';
+  buildPropOptions('exp-prop-sel', e.propertyId);
+  document.getElementById('exp-cat').value = e.category||'Otro';
+  document.getElementById('exp-desc').value = e.description||'';
+  document.getElementById('exp-amount').value = e.amount||'';
+  document.getElementById('exp-freq').value = e.frequency||'mensual';
+  document.getElementById('exp-date').value = e.date||'';
+  setTimeout(() => openModal('modal-exp'), 300);
+}
 
-  if (editId) {
-    title.textContent = type === 'income' ? 'Editar reserva' : 'Editar gasto';
-    cancelBtn.classList.remove('hidden');
-    cancelBtn.textContent = 'Eliminar';
-    cancelBtn.classList.remove('hidden');
-  } else {
-    title.textContent = 'Nueva entrada';
-    cancelBtn.classList.add('hidden');
-  }
-
-  // Toggle type
-  document.querySelectorAll('.type-btn').forEach(b => {
-    b.classList.remove('active');
-    if (b.dataset.type === type) b.classList.add('active');
-  });
-  switchType(type);
-
-  // Pre-fill if editing
-  if (editId) {
-    if (type === 'income') {
-      const r = state.reservations.find(x => x.id === editId);
-      if (r) {
-        document.getElementById('i-guest').value = r.guest;
-        document.getElementById('i-checkin').value = r.checkin;
-        document.getElementById('i-checkout').value = r.checkout;
-        document.getElementById('i-amount').value = r.amount;
-        document.getElementById('i-platform').value = r.platform;
-        document.getElementById('i-guests').value = r.guests;
-        document.getElementById('i-notes').value = r.notes || '';
-      }
+window.saveExpense = async function() {
+  const propId = document.getElementById('exp-prop-sel').value;
+  const category = document.getElementById('exp-cat').value;
+  const description = document.getElementById('exp-desc').value.trim();
+  const amount = parseFloat(document.getElementById('exp-amount').value)||0;
+  const frequency = document.getElementById('exp-freq').value;
+  const date = document.getElementById('exp-date').value;
+  if(!amount||!date) { showToast('⚠️ Completa monto y fecha'); return; }
+  const btn = document.getElementById('exp-save-btn');
+  btn.disabled=true; btn.textContent='Guardando...';
+  const data = {propertyId:propId,category,description,amount,frequency,date};
+  try {
+    if(editingExpId) {
+      await updateDoc(doc(db,'expenses',editingExpId), data);
+      const i = expenses.findIndex(x=>x.id===editingExpId);
+      if(i>=0) expenses[i]={...expenses[i],...data};
     } else {
-      const e = state.expenses.find(x => x.id === editId);
-      if (e) {
-        document.getElementById('e-category').value = e.category;
-        document.getElementById('e-desc').value = e.description || '';
-        document.getElementById('e-amount').value = e.amount;
-        document.getElementById('e-frequency').value = e.frequency;
-        document.getElementById('e-date').value = e.date;
-      }
+      const ref = await addDoc(collection(db,'expenses'), {...data,createdBy:currentUser.uid,createdAt:serverTimestamp()});
+      expenses.push({id:ref.id,...data});
     }
-  } else {
-    // Clear form
-    document.getElementById('i-guest').value = '';
-    if (!document.getElementById('i-checkin').value) document.getElementById('i-checkin').value = today();
-    document.getElementById('i-checkout').value = '';
-    document.getElementById('i-amount').value = '';
-    document.getElementById('i-platform').value = 'Airbnb';
-    document.getElementById('i-guests').value = '';
-    document.getElementById('i-notes').value = '';
-    document.getElementById('e-category').value = 'Electricidad';
-    document.getElementById('e-desc').value = '';
-    document.getElementById('e-amount').value = '';
-    document.getElementById('e-frequency').value = 'mensual';
-    document.getElementById('e-date').value = today();
-  }
-
-  modal.classList.add('open');
-}
-
-function closeAddModal() {
-  document.getElementById('add-modal').classList.remove('open');
-}
-
-function switchType(type) {
-  if (type === 'income') {
-    document.getElementById('income-form').classList.remove('hidden');
-    document.getElementById('expense-form').classList.add('hidden');
-  } else {
-    document.getElementById('income-form').classList.add('hidden');
-    document.getElementById('expense-form').classList.remove('hidden');
-  }
-}
-
-function showDetailModal(item, type) {
-  const modal = document.getElementById('detail-modal');
-  const content = document.getElementById('detail-modal-content');
-
-  let html = '<div class="modal-handle"></div>';
-  if (type === 'income') {
-    const ci = new Date(item.checkin + 'T12:00:00');
-    const co = new Date(item.checkout + 'T12:00:00');
-    const nights = Math.round((co - ci) / 86400000);
-    const perNight = nights > 0 ? fmt(item.amount / nights) : '$0';
-    html += `<div class="detail-header">
-      <h2>🏠 ${item.guest}</h2>
-      <div class="amount">${fmt(item.amount)}</div>
-    </div>
-    <div class="detail-row"><span class="dk">Check-in</span><span class="dv">${fmtDate(item.checkin)}</span></div>
-    <div class="detail-row"><span class="dk">Check-out</span><span class="dv">${fmtDate(item.checkout)}</span></div>
-    <div class="detail-row"><span class="dk">Noches</span><span class="dv">${nights}</span></div>
-    <div class="detail-row"><span class="dk">Por noche</span><span class="dv">${perNight}</span></div>
-    <div class="detail-row"><span class="dk">Plataforma</span><span class="dv">${item.platform}</span></div>
-    <div class="detail-row"><span class="dk">Huéspedes</span><span class="dv">${item.guests || 1}</span></div>
-    ${item.notes ? `<div class="detail-row"><span class="dk">Notas</span><span class="dv">${item.notes}</span></div>` : ''}
-    <br>
-    <button class="btn-primary" onclick="editItem('${item.id}','income')">✏️ Editar</button>
-    <button class="btn-delete" onclick="deleteItem('${item.id}','income')">Eliminar reserva</button>`;
-  } else {
-    const catEmoji = {'Electricidad':'⚡','Agua':'💧','Internet':'📶','Limpieza':'🧹','Piscina':'🏊','Mantenimiento':'🔧','Gas':'🔥','Jardinería':'🌿','Impuestos':'📋','Seguro':'🛡️','Otro':'📦'};
-    html += `<div class="detail-header expense-header">
-      <h2>${catEmoji[item.category]||'📦'} ${item.category}</h2>
-      <div class="amount">${fmt(item.amount)}</div>
-    </div>
-    ${item.description ? `<div class="detail-row"><span class="dk">Descripción</span><span class="dv">${item.description}</span></div>` : ''}
-    <div class="detail-row"><span class="dk">Fecha</span><span class="dv">${fmtDate(item.date)}</span></div>
-    <div class="detail-row"><span class="dk">Frecuencia</span><span class="dv">${item.frequency.charAt(0).toUpperCase()+item.frequency.slice(1)}</span></div>
-    <br>
-    <button class="btn-primary" onclick="editItem('${item.id}','expense')">✏️ Editar</button>
-    <button class="btn-delete" onclick="deleteItem('${item.id}','expense')">Eliminar gasto</button>`;
-  }
-
-  content.innerHTML = html;
-  modal.classList.add('open');
-}
-
-function closeDetailModal() {
-  document.getElementById('detail-modal').classList.remove('open');
-}
-
-window.editItem = function(id, type) {
-  closeDetailModal();
-  setTimeout(() => showAddModal(type, id), 300);
-};
-
-window.deleteItem = function(id, type) {
-  if (type === 'income') {
-    state.reservations = state.reservations.filter(r => r.id !== id);
-  } else {
-    state.expenses = state.expenses.filter(e => e.id !== id);
-  }
-  saveData();
-  closeDetailModal();
-  renderAll();
-  showToast('✓ Eliminado');
-};
-
-// ===== SAVE =====
-function saveEntry() {
-  const activeType = document.querySelector('.type-btn.active')?.dataset.type || 'income';
-
-  if (activeType === 'income') {
-    const guest = document.getElementById('i-guest').value.trim();
-    const checkin = document.getElementById('i-checkin').value;
-    const checkout = document.getElementById('i-checkout').value;
-    const amount = parseFloat(document.getElementById('i-amount').value);
-    const platform = document.getElementById('i-platform').value;
-    const guests = parseInt(document.getElementById('i-guests').value) || 1;
-    const notes = document.getElementById('i-notes').value.trim();
-
-    if (!guest || !checkin || !checkout || !amount) { showToast('⚠️ Completa todos los campos'); return; }
-    if (checkin >= checkout) { showToast('⚠️ La fecha de salida debe ser posterior'); return; }
-
-    if (state.editingId) {
-      const idx = state.reservations.findIndex(r => r.id === state.editingId);
-      if (idx >= 0) state.reservations[idx] = { ...state.reservations[idx], guest, checkin, checkout, amount, platform, guests, notes };
-    } else {
-      state.reservations.push({ id: uid(), guest, checkin, checkout, amount, platform, guests, notes });
-    }
-  } else {
-    const category = document.getElementById('e-category').value;
-    const description = document.getElementById('e-desc').value.trim();
-    const amount = parseFloat(document.getElementById('e-amount').value);
-    const frequency = document.getElementById('e-frequency').value;
-    const date = document.getElementById('e-date').value;
-
-    if (!amount || !date) { showToast('⚠️ Completa todos los campos'); return; }
-
-    if (state.editingId) {
-      const idx = state.expenses.findIndex(e => e.id === state.editingId);
-      if (idx >= 0) state.expenses[idx] = { ...state.expenses[idx], category, description, amount, frequency, date };
-    } else {
-      state.expenses.push({ id: uid(), category, description, amount, frequency, date });
-    }
-  }
-
-  saveData();
-  closeAddModal();
-  renderAll();
-  showToast(state.editingId ? '✓ Actualizado' : '✓ Guardado');
-  state.editingId = null;
-}
-
-// ===== RENDER ALL =====
-function renderAll() {
-  updateSummary();
-  if (state.currentPage === 'calendar') renderCalendar();
-  if (state.currentPage === 'reservations') renderReservations();
-  if (state.currentPage === 'expenses') renderExpenses();
-  if (state.currentPage === 'report') renderReport();
-}
-
-// ===== EVENTS =====
-// Nav tabs
-document.querySelectorAll('.nav-tab').forEach(el => {
-  el.addEventListener('click', () => {
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    const page = el.dataset.page;
-    switchPage(page);
-  });
-});
-
-// Bottom nav
-document.querySelectorAll('.bn-item').forEach(el => {
-  el.addEventListener('click', () => {
-    document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-    const page = el.dataset.page;
-    // Sync nav tabs
-    document.querySelectorAll('.nav-tab').forEach(t => {
-      t.classList.toggle('active', t.dataset.page === page);
-    });
-    switchPage(page);
-  });
-});
-
-function switchPage(page) {
-  state.currentPage = page;
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
-  renderAll();
-}
-
-// FAB
-document.getElementById('fab-btn').addEventListener('click', () => {
-  const type = state.currentPage === 'expenses' ? 'expense' : 'income';
-  showAddModal(type);
-});
-
-// Modal overlays
-document.getElementById('add-modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('add-modal')) closeAddModal();
-});
-document.getElementById('detail-modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('detail-modal')) closeDetailModal();
-});
-
-// Type toggle
-document.querySelectorAll('.type-btn').forEach(b => {
-  b.addEventListener('click', () => {
-    document.querySelectorAll('.type-btn').forEach(x => x.classList.remove('active'));
-    b.classList.add('active');
-    switchType(b.dataset.type);
-  });
-});
-
-// Save
-document.getElementById('save-btn').addEventListener('click', saveEntry);
-
-// Cancel/Delete in modal
-document.getElementById('cancel-btn').addEventListener('click', () => {
-  if (state.editingId && state.editingType) {
-    deleteItem(state.editingId, state.editingType);
-    closeAddModal();
-  }
-});
-
-// Calendar nav
-document.getElementById('cal-prev').addEventListener('click', () => {
-  state.calMonth--; if (state.calMonth < 0) { state.calMonth = 11; state.calYear--; }
-  renderAll();
-});
-document.getElementById('cal-next').addEventListener('click', () => {
-  state.calMonth++; if (state.calMonth > 11) { state.calMonth = 0; state.calYear++; }
-  renderAll();
-});
-
-// Reservations month nav
-document.getElementById('res-prev').addEventListener('click', () => {
-  state.viewMonth--; if (state.viewMonth < 0) { state.viewMonth = 11; state.viewYear--; }
-  renderReservations();
-});
-document.getElementById('res-next').addEventListener('click', () => {
-  state.viewMonth++; if (state.viewMonth > 11) { state.viewMonth = 0; state.viewYear++; }
-  renderReservations();
-});
-
-// Report month nav
-document.getElementById('rpt-prev').addEventListener('click', () => {
-  state.rptMonth--; if (state.rptMonth < 0) { state.rptMonth = 11; state.rptYear--; }
-  renderReport();
-});
-document.getElementById('rpt-next').addEventListener('click', () => {
-  state.rptMonth++; if (state.rptMonth > 11) { state.rptMonth = 0; state.rptYear++; }
-  renderReport();
-});
-
-// Expense filter pills
-document.querySelectorAll('#expense-filters .pill').forEach(p => {
-  p.addEventListener('click', () => {
-    document.querySelectorAll('#expense-filters .pill').forEach(x => x.classList.remove('active'));
-    p.classList.add('active');
-    state.expenseFilter = p.dataset.filter;
+    closeModal('modal-exp');
     renderExpenses();
+    showToast('✓ Gasto guardado');
+  } catch(e) { showToast('Error: '+e.message); }
+  btn.disabled=false; btn.textContent='Guardar gasto';
+}
+
+window.deleteExpense = async function() {
+  if(!editingExpId) return;
+  await deleteExpenseDirect(editingExpId);
+  closeModal('modal-exp');
+}
+
+window.deleteExpenseDirect = async function(id) {
+  if(!confirm('¿Eliminar este gasto?')) return;
+  try {
+    await deleteDoc(doc(db,'expenses',id));
+    expenses = expenses.filter(x=>x.id!==id);
+    closeModal('modal-exp-detail');
+    renderExpenses();
+    showToast('✓ Gasto eliminado');
+  } catch(e) { showToast('Error: '+e.message); }
+}
+
+// ── REPORT ──
+window.setRptProp = function(id) {
+  selectedRptProp = id;
+  renderReport();
+}
+
+window.changeRptMonth = function(d) {
+  rptMonth += d;
+  if(rptMonth<0){rptMonth=11;rptYear--;}
+  if(rptMonth>11){rptMonth=0;rptYear++;}
+  renderReport();
+}
+
+function renderReport() {
+  buildPropSelector('rpt-prop-selector', selectedRptProp, 'setRptProp');
+  document.getElementById('rpt-month-lbl').textContent = `${months[rptMonth]} ${rptYear}`;
+  const res = getMonthRes(selectedRptProp, rptMonth, rptYear);
+  const exp = getMonthExp(selectedRptProp, rptMonth, rptYear);
+  const inc = res.reduce((s,r)=>s+parseFloat(r.amount||0),0);
+  const expt = exp.reduce((s,e)=>s+parseFloat(e.amount||0),0);
+  const net = inc - expt;
+  const mx = Math.max(inc,expt,1);
+  const occ = selectedRptProp==='all' ? 0 : getOccDays(selectedRptProp, rptMonth, rptYear);
+  const dim = new Date(rptYear,rptMonth+1,0).getDate();
+  const nights = res.reduce((s,r)=>s+Math.round((new Date(r.checkout+'T12:00:00')-new Date(r.checkin+'T12:00:00'))/86400000),0);
+  const catTotals = {};
+  exp.forEach(e => catTotals[e.category]=(catTotals[e.category]||0)+parseFloat(e.amount||0));
+  const breakdown = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
+
+  document.getElementById('rpt-content').innerHTML = `
+  <div class="card" style="margin-bottom:12px">
+    <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;font-weight:600">Resumen del mes</div>
+    <div class="report-row"><span class="rlab">🏠 Total ingresos</span><span class="rval green">${fmt(inc)}</span></div>
+    <div class="report-row"><span class="rlab">💸 Total gastos</span><span class="rval red">${fmt(expt)}</span></div>
+    <div class="report-row"><span class="rlab">💰 Ganancia neta</span><span class="rval ${net>=0?'blue':'red'}">${fmt(net)}</span></div>
+    <div class="bar-row">
+      <div class="bar-lbl"><span>Ingresos</span><span>${Math.round(inc/mx*100)}%</span></div>
+      <div class="bar-track"><div class="bar-fill inc" style="width:${Math.round(inc/mx*100)}%"></div></div>
+      <div class="bar-lbl"><span>Gastos</span><span>${Math.round(expt/mx*100)}%</span></div>
+      <div class="bar-track"><div class="bar-fill exp" style="width:${Math.round(expt/mx*100)}%"></div></div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;font-weight:600">Desglose de gastos</div>
+    ${breakdown.length ? breakdown.map(([cat,amt])=>`<div class="report-row"><span class="rlab">${catIcon[cat]||'📦'} ${cat}</span><span class="rval red">${fmt(amt)}</span></div>`).join('') : '<div style="text-align:center;padding:16px;color:var(--text3);font-size:13px">Sin gastos este mes</div>'}
+  </div>
+  ${selectedRptProp!=='all'?`
+  <div class="card">
+    <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;font-weight:600">Ocupación</div>
+    <div class="report-row"><span class="rlab">📅 Días ocupados</span><span class="rval blue">${occ}</span></div>
+    <div class="report-row"><span class="rlab">📊 % Ocupación</span><span class="rval blue">${Math.round(occ/dim*100)}%</span></div>
+    <div class="report-row"><span class="rlab">🏠 Reservas</span><span class="rval blue">${res.length}</span></div>
+    <div class="report-row"><span class="rlab">💵 Promedio/noche</span><span class="rval green">${nights>0?fmt(inc/nights):'—'}</span></div>
+  </div>`:''}`;
+}
+
+// ── ADMIN ──
+function renderAdmin() {
+  getDocs(collection(db,'users')).then(snap => {
+    const users = snap.docs.map(d=>({id:d.id,...d.data()}));
+    const c = document.getElementById('users-list');
+    if(!users.length) { c.innerHTML=`<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No hay usuarios</div></div>`; return; }
+    c.innerHTML = users.map(u => `
+    <div class="user-card">
+      <div class="user-avatar">${(u.name||u.email||'?').slice(0,2).toUpperCase()}</div>
+      <div class="user-info">
+        <div class="user-name">${u.name||'Sin nombre'}</div>
+        <div class="user-email">${u.email||''}</div>
+      </div>
+      <span class="user-role ${u.role||'viewer'}">${u.role==='admin'?'Admin':'Viewer'}</span>
+    </div>`).join('');
+  });
+}
+
+window.openAddUser = async function() {
+  document.getElementById('user-name').value = '';
+  document.getElementById('user-email').value = '';
+  document.getElementById('user-pass').value = '';
+  document.getElementById('user-role').value = 'viewer';
+  openModal('modal-user');
+}
+
+window.saveUser = async function() {
+  const name = document.getElementById('user-name').value.trim();
+  const email = document.getElementById('user-email').value.trim();
+  const pass = document.getElementById('user-pass').value;
+  const role = document.getElementById('user-role').value;
+  if(!email||!pass) { showToast('⚠️ Correo y contraseña requeridos'); return; }
+  if(pass.length<6) { showToast('⚠️ Contraseña mínimo 6 caracteres'); return; }
+  const btn = document.getElementById('user-save-btn');
+  btn.disabled=true; btn.textContent='Creando...';
+  try {
+    // Create auth user — Note: this logs out current user in same app
+    // Use Admin SDK in production; for now create then re-login
+    const secondApp = initializeApp(firebaseConfig, 'secondary-'+Date.now());
+    const secondAuth = getAuth(secondApp);
+    const cred = await createUserWithEmailAndPassword(secondAuth, email, pass);
+    await setDoc(doc(db,'users',cred.user.uid), {name,email,role,createdAt:serverTimestamp()});
+    await signOut(secondAuth);
+    closeModal('modal-user');
+    renderAdmin();
+    showToast('✓ Usuario creado');
+  } catch(e) {
+    const msgs = {'auth/email-already-in-use':'Este correo ya existe','auth/invalid-email':'Correo inválido','auth/weak-password':'Contraseña muy débil'};
+    showToast(msgs[e.code]||'Error: '+e.message);
+  }
+  btn.disabled=false; btn.textContent='Crear usuario';
+}
+
+// ── MODALS ──
+window.openModal = function(id) {
+  document.getElementById(id).classList.add('open');
+}
+window.closeModal = function(id) {
+  document.getElementById(id).classList.remove('open');
+}
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if(e.target === overlay) overlay.classList.remove('open');
   });
 });
 
-// ===== INIT =====
-loadData();
+// Key handler - Enter on auth
+document.getElementById('auth-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('auth-email').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('auth-pass').focus(); });
 
-// Seed sample data if empty
-if (state.reservations.length === 0 && state.expenses.length === 0) {
-  const y = new Date().getFullYear(), m = String(new Date().getMonth()+1).padStart(2,'0');
-  state.reservations = [
-    { id: uid(), guest: 'María Rodríguez', checkin: `${y}-${m}-03`, checkout: `${y}-${m}-08`, amount: 1500, platform: 'Airbnb', guests: 4, notes: 'Familia con niños' },
-    { id: uid(), guest: 'Carlos Méndez', checkin: `${y}-${m}-12`, checkout: `${y}-${m}-16`, amount: 900, platform: 'Booking', guests: 2, notes: '' },
-    { id: uid(), guest: 'Laura García', checkin: `${y}-${m}-22`, checkout: `${y}-${m}-28`, amount: 1800, platform: 'Directo', guests: 6, notes: 'Evento familiar' },
-  ];
-  state.expenses = [
-    { id: uid(), category: 'Electricidad', description: `Factura ${months[new Date().getMonth()]}`, amount: 180, frequency: 'mensual', date: `${y}-${m}-01` },
-    { id: uid(), category: 'Agua', description: '', amount: 45, frequency: 'mensual', date: `${y}-${m}-01` },
-    { id: uid(), category: 'Internet', description: 'Fibra 200mb', amount: 60, frequency: 'mensual', date: `${y}-${m}-01` },
-    { id: uid(), category: 'Limpieza', description: 'Empleada doméstica', amount: 120, frequency: 'semanal', date: `${y}-${m}-05` },
-    { id: uid(), category: 'Piscina', description: 'Mantenimiento quincenal', amount: 200, frequency: 'mensual', date: `${y}-${m}-10` },
-  ];
-  saveData();
-}
-
-renderAll();
 </script>
 </body>
 </html>
